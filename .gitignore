@@ -1,0 +1,67 @@
+# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+
+# dependencies
+/node_modules
+/.pnp
+.pnp.js
+
+# testing
+/coverage
+
+# next.js
+/.next/
+/out/
+
+# production
+/build
+/dist
+
+# misc
+.DS_Store
+*.pem
+
+# debug
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# local env files
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# vercel
+.vercel
+
+# editors
+.vscode
+.idea
+
+# dist folders
+dist/
+**/dist/
+
+# certificates
+certificates
+.env*.local
+
+# Игнорируем все страницы в app, кроме указанных
+/app/*
+!/app/browse
+/app/browse/*
+!/app/browse/mobile
+!/app/browse/desktop
+!/app/not-found.tsx
+!/app/error.tsx
+!/app/layout.tsx
+
+# TypeScript
+*.tsbuildinfo
+next-env.d.ts
+
+# Build output
+dist/
+.next/
+out/

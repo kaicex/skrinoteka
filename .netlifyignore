@@ -1,0 +1,11 @@
+# Ignore only sensitive environment files
+.env
+.env.*
+!.env.example
+
+# Ignore development files
+.git/
+.gitignore
+.prettierrc
+.eslintrc.json
+README.md
