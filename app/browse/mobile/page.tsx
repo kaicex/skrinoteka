@@ -173,7 +173,14 @@ export default function MobileBrowsePage() {
             {displayedApps.map((app) => (
               <AppCard 
                 key={app.id} 
-                app={app}
+                app={{
+                  id: app.id,
+                  name: app.name,
+                  category: app.category,
+                  description: app.description,
+                  screens: app.screens,
+                  logo: app.logo
+                }}
                 href={`/browse/mobile/${app.id}`}
               />
             ))}

@@ -83,7 +83,6 @@ export async function getAppById(appId: string): Promise<App | null> {
   try {
     const appResponse = await client.getEntry(appId, {
       include: 2,
-      content_type: 'app',
     });
 
     // Добавляем логи для проверки данных
@@ -109,19 +108,21 @@ export async function getAppById(appId: string): Promise<App | null> {
         .filter(Boolean)
     )).map(name => ({ name }));
     
-    const screens = screensResponse.items.map((screen: any) => ({
-      id: screen.sys.id,
-      name: screen.fields.title || '',
-      url: screen.fields.image?.fields?.file?.url 
-        ? `https:${screen.fields.image.fields.file.url}`
-        : '',
-      platform: screen.fields.platform?.map((p: any) => ({
-        name: p.fields?.name || ''
-      })) || [],
-      flowType: screen.fields.flowType ? {
-        name: screen.fields.flowType.fields?.name || ''
-      } : undefined
-    }));
+    const screens = screensResponse.items
+      .filter((screen: any) => screen.fields.image?.fields?.file?.url) // Фильтруем экраны без изображений
+      .map((screen: any) => ({
+        id: screen.sys.id,
+        name: screen.fields.title || '',
+        image: {
+          url: `https:${screen.fields.image.fields.file.url}`
+        },
+        platform: screen.fields.platform?.map((p: any) => ({
+          name: p.fields?.name || ''
+        })) || [],
+        flowType: screen.fields.flowType ? {
+          name: screen.fields.flowType.fields?.name || ''
+        } : undefined
+      }));
 
     // Добавляем лог перед возвратом
     const result = {

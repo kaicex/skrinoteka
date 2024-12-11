@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
@@ -8,11 +8,15 @@ import { ChevronLeft, ChevronRight } from 'lucide-react';
 
 interface AppCardProps {
   app: {
+    id: string;
     name: string;
     category: string;
+    description?: string;
     screens: Array<{
-      url: string;
+      id: string;
       title?: string;
+      platform?: Array<{ name: string }>;
+      flowType?: { name: string };
       image?: {
         url: string;
       };
@@ -33,7 +37,15 @@ export function AppCard({ app, href }: AppCardProps) {
   const [skipTransition, setSkipTransition] = useState(false);
 
   // Проверяем наличие screens и добавляем проверку на существование url
-  const screenImages = app.screens?.filter(screen => screen?.image?.url)?.slice(0, 3) || [];
+  const screenImages = useMemo(() => {
+    if (!app.screens || !Array.isArray(app.screens)) return [];
+    
+    return app.screens
+      .filter((screen): screen is (typeof app.screens[0] & { image: { url: string } }) => {
+        return Boolean(screen?.image?.url && typeof screen.image.url === 'string');
+      })
+      .slice(0, 3);
+  }, [app.screens]);
 
   const handleMouseLeave = () => {
     setSkipTransition(false);
@@ -86,26 +98,28 @@ export function AppCard({ app, href }: AppCardProps) {
                 >
                   {screenImages.map((screen, index) => (
                     <div 
-                      key={index}
+                      key={screen.id || index}
                       className="w-full h-full flex-none relative"
                     >
-                      <Image
-                        src={screen.image?.url || ''}
-                        alt={screen.title || app.name}
-                        fill
-                        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                        className={cn(
-                          "object-cover object-top transition-opacity duration-300",
-                          isImageLoading && index === currentImageIndex ? "opacity-0" : "opacity-100"
-                        )}
-                        priority={index === currentImageIndex}
-                        onLoad={() => {
-                          if (index === currentImageIndex) {
-                            setIsImageLoading(false);
-                          }
-                        }}
-                        onError={handleImageError}
-                      />
+                      {screen.image.url && (
+                        <Image
+                          src={screen.image.url}
+                          alt={screen.title || app.name}
+                          fill
+                          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                          className={cn(
+                            "object-cover object-top transition-opacity duration-300",
+                            isImageLoading && index === currentImageIndex ? "opacity-0" : "opacity-100"
+                          )}
+                          priority={index === 0}
+                          onLoad={() => {
+                            if (index === currentImageIndex) {
+                              setIsImageLoading(false);
+                            }
+                          }}
+                          onError={handleImageError}
+                        />
+                      )}
                     </div>
                   ))}
                 </div>
@@ -151,7 +165,7 @@ export function AppCard({ app, href }: AppCardProps) {
         {/* App Info */}
         <div className="p-2">
           <div className="flex items-center gap-2">
-            {app.logo?.url && (
+            {app.logo?.url && typeof app.logo.url === 'string' && (
               <div className="relative w-10 h-10 flex-shrink-0 rounded-lg overflow-hidden bg-white border border-zinc-100">
                 <Image
                   src={app.logo.url}
@@ -162,6 +176,7 @@ export function AppCard({ app, href }: AppCardProps) {
                     "object-contain",
                     isLogoLoading ? "opacity-0" : "opacity-100"
                   )}
+                  priority={true}
                   onLoad={() => setIsLogoLoading(false)}
                   onError={handleImageError}
                 />
