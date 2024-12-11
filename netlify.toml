@@ -2,10 +2,18 @@
   command = "pnpm build"
   publish = ".next"
 
+[build.environment]
+  NEXT_USE_NETLIFY_EDGE = "true"
+  NODE_VERSION = "18"
+
 [[plugins]]
   package = "@netlify/plugin-nextjs"
 
+[functions]
+  included_files = ["node_modules/@netlify/plugin-nextjs/**/*"]
+
 [[redirects]]
   from = "/*"
-  to = "/index.html"
+  to = "/.netlify/functions/nextjs-server"
   status = 200
+  force = true
