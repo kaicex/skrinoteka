@@ -42,7 +42,7 @@ export function AppCard({ app, href }: AppCardProps) {
     
     return app.screens
       .filter((screen): screen is (typeof app.screens[0] & { image: { url: string } }) => {
-        return Boolean(screen?.image?.url && typeof screen.image.url === 'string');
+        return Boolean(screen?.image?.url);
       })
       .slice(0, 3);
   }, [app.screens]);

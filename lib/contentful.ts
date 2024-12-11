@@ -85,10 +85,6 @@ export async function getAppById(appId: string): Promise<App | null> {
       include: 2
     });
 
-    // Добавляем логи для проверки данных
-    console.log('Raw app response:', JSON.stringify(appResponse.fields, null, 2));
-    console.log('App logo field:', appResponse.fields.app_logo);
-
     const screensResponse = await client.getEntries({
       content_type: 'screen',
       'fields.app.sys.id': appId,
@@ -108,23 +104,22 @@ export async function getAppById(appId: string): Promise<App | null> {
         .filter(Boolean)
     )).map(name => ({ name }));
     
-    const screens = screensResponse.items.map((screen: any) => ({
-      id: screen.sys.id,
-      name: screen.fields.title || '',
-      image: {
-        url: screen.fields.image?.fields?.file?.url 
-          ? `https:${screen.fields.image.fields.file.url}`
-          : ''
-      },
-      platform: screen.fields.platform?.map((p: any) => ({
-        name: p.fields?.name || ''
-      })) || [],
-      flowType: screen.fields.flowType ? {
-        name: screen.fields.flowType.fields?.name || ''
-      } : undefined
-    }));
+    const screens = screensResponse.items
+      .filter((screen: any) => screen.fields.image?.fields?.file?.url)  // Фильтруем скрины без изображений
+      .map((screen: any) => ({
+        id: screen.sys.id,
+        name: screen.fields.title || '',
+        image: {
+          url: `https:${screen.fields.image.fields.file.url}`
+        },
+        platform: screen.fields.platform?.map((p: any) => ({
+          name: p.fields?.name || ''
+        })) || [],
+        flowType: screen.fields.flowType ? {
+          name: screen.fields.flowType.fields?.name || ''
+        } : undefined
+      }));
 
-    // Добавляем лог перед возвратом
     const result = {
       id: appId,
       name: fields.name || '',
@@ -139,7 +134,6 @@ export async function getAppById(appId: string): Promise<App | null> {
       flowTypes: uniqueFlowTypes
     };
 
-    console.log('Processed app data:', JSON.stringify(result, null, 2));
     return result;
 
   } catch (error) {

@@ -47,21 +47,10 @@ dist/
 certificates
 .env*.local
 
-# Игнорируем все страницы в app, кроме указанных
-/app/*
-!/app/browse
-/app/browse/*
-!/app/browse/mobile
-!/app/browse/desktop
-!/app/not-found.tsx
-!/app/error.tsx
-!/app/layout.tsx
-
 # TypeScript
 *.tsbuildinfo
 next-env.d.ts
 
 # Build output
-dist/
 .next/
 out/
