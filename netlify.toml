@@ -1,6 +1,7 @@
 [build]
   command = "pnpm build"
   publish = ".next"
+  ignore = "git diff --quiet $CACHED_COMMIT_REF $COMMIT_REF ."
 
 [build.environment]
   NEXT_USE_NETLIFY_EDGE = "true"
@@ -10,11 +11,15 @@
 [[plugins]]
   package = "@netlify/plugin-nextjs"
 
-[functions]
-  included_files = ["node_modules/@netlify/plugin-nextjs/**/*"]
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Frame-Options = "DENY"
+    X-XSS-Protection = "1; mode=block"
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"
 
 [[redirects]]
   from = "/*"
-  to = "/.netlify/functions/nextjs-server"
+  to = "/index.html"
   status = 200
-  force = true
