@@ -28,7 +28,7 @@ const footerLinks = {
 
 export default function Footer() {
   return (
-    <footer className="w-full mt-24 border-t border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+    <footer className="w-full mt-24 border-t border-border bg-gray-100">
       <div className="max-w-screen-xl mx-auto px-4 py-8">
         {/* <div className="border border-dashed border-border rounded-[2rem] p-4">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8 md:gap-4 rounded-[1.5rem] p-6">
@@ -52,7 +52,7 @@ export default function Footer() {
           </div>
         </div> */}
 
-        <div className="flex flex-col md:flex-row justify-between items-center py-4 mt-8 border-t border-border">
+        <div className="flex flex-col md:flex-row justify-between items-center py-4 mt-8 border-border">
           <div className="flex items-center gap-4 mb-4 md:mb-0">
             <Link href="/" className="text-xl font-bold text-foreground">
               Skreenoteka

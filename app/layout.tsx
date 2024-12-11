@@ -6,8 +6,8 @@ import { PropsWithChildren } from 'react';
 import { getURL } from '@/utils/helpers';
 import 'styles/main.css';
 
-const title = 'Deshub - UX inspirations';
-const description = 'Brought to you by Vercel';
+const title = 'Skreenoteka - UX вдохновение';
+const description = 'Brought to you by Skreenoteka';
 
 export const metadata: Metadata = {
   metadataBase: new URL(getURL()),

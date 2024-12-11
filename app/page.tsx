@@ -3,10 +3,10 @@ import Link from 'next/link'
 import { ArrowRight, Layout, Smartphone, Globe, Zap, RefreshCw, Users } from 'lucide-react'
 import Image from 'next/image'
 import { Button } from "@/components/ui/button"
-
-
+import { redirect } from 'next/navigation'
 
 export default async function PricingPage() {
+  redirect('/browse/mobile')
 
   return (
     <Container size="xl">
@@ -134,6 +134,3 @@ export default async function PricingPage() {
     </Container>
   );
 }
-
-
-
