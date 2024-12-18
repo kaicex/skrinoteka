@@ -65,19 +65,31 @@ export function TabContent({
 
   // Используем useMemo для подготовки данных активного таба
   const activeTabData = useMemo(() => {
+    const allowedPlatforms = platform === 'mobile' 
+      ? ['ios', 'android']
+      : ['web', 'desktop'];
+
+    // Фильтруем скрины по платформе
+    const filterScreensByPlatform = (screens: any[]) => 
+      screens.filter(screen =>
+        screen.platform?.some((p: any) => 
+          allowedPlatforms.includes(p.name.toLowerCase())
+        )
+      );
+
     if (currentTab === 'screens') {
       return {
-        screens: initialScreens.slice(0, 20),
+        screens: filterScreensByPlatform(initialScreens).slice(0, 20),
         appName
       }
     } else {
       return {
         flowTypes: initialFlowTypes,
-        screens: initialFlowScreens.slice(0, 20),
+        screens: filterScreensByPlatform(initialFlowScreens).slice(0, 20),
         appName
       }
     }
-  }, [currentTab, initialScreens, initialFlowTypes, initialFlowScreens, appName])
+  }, [currentTab, initialScreens, initialFlowTypes, initialFlowScreens, appName, platform])
 
   // Предзагрузка следующей порции данных
   useEffect(() => {

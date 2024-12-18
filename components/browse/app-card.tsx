@@ -36,13 +36,19 @@ export function AppCard({ app, href }: AppCardProps) {
   const [isSliding, setIsSliding] = useState(false);
   const [skipTransition, setSkipTransition] = useState(false);
 
-  // Проверяем наличие screens и добавляем проверку на существование url
+  // Проверяем наличие screens и фильтруем по мобильным платформам
   const screenImages = useMemo(() => {
     if (!app.screens || !Array.isArray(app.screens)) return [];
     
     return app.screens
       .filter((screen): screen is (typeof app.screens[0] & { image: { url: string } }) => {
-        return Boolean(screen?.image?.url);
+        // Проверяем наличие url
+        if (!screen?.image?.url) return false;
+        
+        // Проверяем платформу
+        return screen.platform?.some(p => 
+          ['ios', 'android'].includes(p.name.toLowerCase())
+        ) ?? false;
       })
       .slice(0, 3);
   }, [app.screens]);

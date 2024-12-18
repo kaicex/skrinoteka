@@ -30,34 +30,44 @@ export default async function AppPage({ params, searchParams }: AppPageProps) {
   
   const currentTab = searchParams.tab || 'flows';
 
-  // Check if the app matches the current platform
-  if (app?.screens && app.screens.length > 0) {
-    const isPlatformMatch = app.screens.some(screen =>
-      screen.platform?.some(p => {
-        if (params.platform === 'mobile') {
-          return ['ios', 'android'].includes(p.name.toLowerCase());
-        } else if (params.platform === 'desktop') {
-          return ['web', 'desktop'].includes(p.name.toLowerCase());
-        }
-        return false;
-      })
-    );
-
-    if (!isPlatformMatch) {
-      notFound();
-    }
-  }
-
   if (!app) {
     notFound();
   }
 
-  // Получаем уникальные платформы
+  // Определяем разрешенные платформы
+  const allowedPlatforms = params.platform === 'mobile' 
+    ? ['ios', 'android']
+    : ['web', 'desktop'];
+
+  // Фильтруем скрины только для текущей платформы
+  const filteredScreens = app.screens.filter(screen =>
+    screen.platform?.some(p => 
+      allowedPlatforms.includes(p.name.toLowerCase())
+    )
+  );
+
+  // Если нет скринов для данной платформы - показываем 404
+  if (filteredScreens.length === 0) {
+    notFound();
+  }
+
+  // Получаем уникальные платформы только для отфильтрованных скринов
   const platforms = Array.from(new Set(
-    app.screens.flatMap(screen => 
-      screen.platform?.map(p => p.name) || []
+    filteredScreens.flatMap(screen => 
+      screen.platform
+        ?.filter(p => allowedPlatforms.includes(p.name.toLowerCase()))
+        .map(p => p.name) || []
     )
   ));
+
+  // Фильтруем типы потоков только для отфильтрованных скринов
+  const filteredFlowTypes = app.flowTypes?.filter(flowType =>
+    filteredScreens.some(screen => screen.flowType?.name === flowType.name)
+  ) || [];
+
+  // Обновляем app с отфильтрованными данными
+  app.screens = filteredScreens;
+  app.flowTypes = filteredFlowTypes;
 
   return (
     <Container size="xl">
