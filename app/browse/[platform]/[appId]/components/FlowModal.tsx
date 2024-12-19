@@ -246,16 +246,20 @@ export function FlowModal({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose} >
-      <DialogContent className="max-w-full bg-white rounded-xl border overflow-hidden p-0">
+      <DialogContent 
+        className="max-w-[95vw] max-h-[95vh] bg-white rounded-xl border overflow-hidden p-0"
+      >
         <DialogTitle className="sr-only">
           {`${appName} ${flowType} Поток`}
         </DialogTitle>
         <DialogDescription className="sr-only">
           {`Просмотр потока ${flowType} из ${appName}`}
         </DialogDescription>
-        <div className="h-[90vh] flex flex-col">
+        <div className="h-full flex flex-col">
           {/* Top panel */}
-          <div className="h-12 shrink-0 p-4 flex justify-end items-center">
+          <div 
+            className="h-12 shrink-0 p-4 flex justify-end items-center bg-white"
+          >
             <button
               onClick={onClose}
               className="p-2 rounded-full bg-zinc-100 hover:bg-zinc-200 transition-colors cursor-pointer"
@@ -266,7 +270,9 @@ export function FlowModal({
           </div>
 
           {/* Main content */}
-          <div className={`${platform === 'desktop' ? 'py-48 md:py-12' : 'py-4'} flex-1 min-h-0 flex items-center justify-center relative`}>
+          <div 
+            className="py-4 flex-1 flex items-center justify-center relative overflow-hidden [&::-webkit-scrollbar]:hidden"
+          >
             {showLeftArrow && (
               <button
                 onClick={() => handleScroll('left')}
@@ -276,56 +282,62 @@ export function FlowModal({
                 <ChevronLeft className="w-6 h-6 text-zinc-800" />
               </button>
             )}
+            
             <div 
+              className="h-full max-h-[70vh] overflow-x-auto flex items-center [&::-webkit-scrollbar]:hidden"
               ref={scrollContainerRef}
-              className="h-full flex gap-4 overflow-x-auto px-4 scroll-smooth items-center"
               style={{ 
-                scrollbarWidth: 'none', 
+                scrollbarWidth: 'none',
                 msOverflowStyle: 'none',
                 WebkitOverflowScrolling: 'touch',
                 scrollBehavior: 'smooth'
               }}
             >
-              {screens?.map((screen, idx) => (
-                <div 
-                  key={`${modalId.current}-screen-${idx}`}
-                  className="flex-shrink-0 h-full flex items-center group"
-                >
-                  <div className={`h-full flex items-center ${platform === 'desktop' ? 'aspect-video' : 'aspect-[390/844]'} rounded-2xl border border-zinc-200 overflow-y-auto box-border relative`}>
-                    <img 
-                      src={screen.url} 
-                      alt={`${appName} screen ${idx + 1}`}
-                      className="w-full h-full object-cover object-top"
-                      loading="lazy"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-black/30 opacity-0 group-hover:opacity-100 transition-opacity duration-200" />
-                    <button 
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleDownloadScreen(screen.url, idx);
-                      }}
-                      className="absolute bottom-3 right-3 bg-white/90 p-2 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-200 hover:bg-white hover:shadow-md z-10"
-                      aria-label="Download screen"
+              <div className={`flex gap-4 pl-5 after:content-[''] after:w-1 after:flex-shrink-0 ${platform === 'desktop' ? '' : ''}`}>
+                {screens?.map((screen, idx) => (
+                  <div 
+                    key={`${modalId.current}-screen-${idx}`}
+                    className="flex-shrink-0 h-full max-h-[70vh] flex items-center group"
+                  >
+                    <div 
+                      className={`h-full max-h-[70vh] flex items-center ${platform === 'desktop' ? 'aspect-video' : 'aspect-[390/844]'} rounded-2xl border border-zinc-200 overflow-hidden box-border relative`}
                     >
-                      <Download className="w-5 h-5 text-zinc-700" />
-                    </button>
+                      <img 
+                        src={screen.url} 
+                        alt={`${appName} screen ${idx + 1}`}
+                        className="w-full h-full object-cover object-top"
+                        loading="lazy"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-black/30 opacity-0 group-hover:opacity-100 transition-opacity duration-200" />
+                      <button 
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleDownloadScreen(screen.url, idx);
+                        }}
+                        className="absolute bottom-3 right-3 bg-white/90 p-2 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-200 hover:bg-white hover:shadow-md z-10"
+                        aria-label="Download screen"
+                      >
+                        <Download className="w-5 h-5 text-zinc-700" />
+                      </button>
+                    </div>
                   </div>
-                </div>
-              ))}
+                ))}
+              </div>
             </div>
+
             {showRightArrow && (
               <button
                 onClick={() => handleScroll('right')}
-                className="absolute right-4 z-10 p-2 rounded-full bg-black/40 hover:bg-black/60 transition-colors cursor-pointer"
-                aria-label="Next screens"
+                className="absolute right-4 z-10 p-2 rounded-full bg-zinc-100 hover:bg-zinc-200 transition-colors cursor-pointer"
+                aria-label="Следующие экраны"
               >
-                <ChevronRight className="w-6 h-6 text-white" />
+                <ChevronRight className="w-6 h-6 text-zinc-800" />
               </button>
             )}
           </div>
 
           {/* Bottom panel */}
-          <div className="shrink-0 flex flex-col md:flex-row items-center justify-between p-4 gap-4">
+          <div className="shrink-0 flex flex-col md:flex-row items-center justify-between p-4 gap-4 bg-white">
             <div className="flex flex-col md:flex-row items-center gap-2">
               <div className="flex items-center gap-2">
                 <span className="text-zinc-800 text-sm font-medium">{appName}</span>
