@@ -247,7 +247,7 @@ export function FlowModal({
   return (
     <Dialog open={isOpen} onOpenChange={onClose} >
       <DialogContent 
-        className="w-screen max-h-[95vh] bg-white rounded-xl border overflow-hidden p-0"
+        className="max-w-[calc(100vw-1px)] max-h-[95vh] bg-white rounded-xl border overflow-hidden p-0"
       >
         <DialogTitle className="sr-only">
           {`${appName} ${flowType} Поток`}
