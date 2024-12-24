@@ -30,7 +30,7 @@ export function AppTabs({ currentTab, platform, appId }: AppTabsProps) {
           value="flows" 
           className="flex-1 w-full text-center"
         >
-          Потоки
+          Флоу
         </TabsTrigger>
         <TabsTrigger 
           value="screens" 

@@ -6,8 +6,9 @@ import {
   DialogTitle,
   DialogDescription
 } from "@/components/ui/dialog"
-import { ChevronLeft, ChevronRight, X, ArrowDown, ClipboardCopy, Check } from "lucide-react"
+import { ChevronLeft, ChevronRight, X, ArrowDown, ClipboardCopy, Check, Download } from "lucide-react"
 import { useEffect, useState } from "react"
+import { pluralizeScreens } from '@/lib/utils/pluralize'
 
 interface Screen {
   url: string;
@@ -68,6 +69,7 @@ export function ScreenModal({
   const currentScreen = screens[currentIndex];
   const isFirstScreen = currentIndex === 0;
   const isLastScreen = currentIndex === screens.length - 1;
+  const totalScreens = screens.length;
 
   return (
     <Dialog open={isOpen} onOpenChange={() => onClose()} >
@@ -127,7 +129,7 @@ export function ScreenModal({
               <div className="flex items-center gap-2">
                 <span className="text-zinc-800 text-sm font-medium">{appName}</span>
                 <span className="text-zinc-400 text-sm">•</span>
-                <span className="text-zinc-400 text-sm">{currentIndex + 1}/{screens.length} экранов</span>
+                <span className="text-zinc-400 text-sm">{pluralizeScreens(totalScreens)}</span>
               </div>
             </div>
             <div className="flex items-center gap-2">
@@ -159,17 +161,17 @@ function CopyButton() {
     <button
       onClick={handleCopy}
       className="flex items-center gap-2 hover:bg-zinc-200 transition-colors cursor-pointer rounded-full px-3 py-1.5 bg-zinc-100"
-      aria-label="Скопировать ссылку"
+      aria-label="Поделиться ссылкой"
     >
       {copied ? (
         <>
           <Check className="w-4 h-4 text-zinc-800" />
-          <span className="text-zinc-800 text-sm">Скопировано</span>
+          <span className="text-zinc-800 text-sm">Скопировано в буфер</span>
         </>
       ) : (
         <>
           <ClipboardCopy className="w-4 h-4 text-zinc-800" />
-          <span className="text-zinc-800 text-sm">Скопировать ссылку</span>
+          <span className="text-zinc-800 text-sm">Поделиться ссылкой</span>
         </>
       )}
     </button>
@@ -245,7 +247,7 @@ function DownloadButton({ url, appName, type = 'Screen' }: { url: string, appNam
     >
       <ArrowDown className="w-4 h-4 text-zinc-800" />
       <span className="text-zinc-800 text-sm">
-        {downloading ? 'Загрузка...' : 'Скачать'}
+        {downloading ? 'Загрузка...' : 'Скачать экран'}
       </span>
     </button>
   )

@@ -7,6 +7,8 @@ import { ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
 import { AppTabs } from './components/AppTabs';
 import { TabContent } from './components/TabContent';
+import { FlowTypeSelect } from './components/FlowTypeSelect';
+import { pluralizeScreens } from '@/lib/utils/pluralize';
 
 interface AppPageProps {
   params: {
@@ -15,6 +17,7 @@ interface AppPageProps {
   };
   searchParams: {
     tab?: string;
+    flowType?: string;
   };
 }
 
@@ -29,6 +32,7 @@ export default async function AppPage({ params, searchParams }: AppPageProps) {
   const app = await getAppById(params.appId);
   
   const currentTab = searchParams.tab || 'flows';
+  const selectedFlowType = searchParams.flowType || 'Все флоу';
 
   if (!app) {
     notFound();
@@ -78,7 +82,7 @@ export default async function AppPage({ params, searchParams }: AppPageProps) {
           <div className="md:sticky md:top-[64px] flex flex-col min-h-[calc(100vh-64px)] pb-16">
             <div className="space-y-6">
               {/* App Info */}
-              <div className="flex flex-col gap-4">
+              <div className="flex flex-col gap-5">
                 {/* Mobile Back Button */}
                 <div className="md:hidden flex items-center gap-4">
                   <Link 
@@ -92,7 +96,6 @@ export default async function AppPage({ params, searchParams }: AppPageProps) {
                     <div className="text-sm text-zinc-500 -mt-1">{app.category}</div>
                   </div>
                 </div>
-
                 {app.logo?.url && (
                   <div className="rounded-3xl w-full aspect-square flex-shrink-0 bg-zinc-100 flex items-center justify-center">
                     <Image
@@ -108,14 +111,20 @@ export default async function AppPage({ params, searchParams }: AppPageProps) {
                   <h1 className="hidden md:block text-2xl font-semibold">{app.name}</h1>
                   <div className="hidden md:block text-sm text-zinc-500 mt-1">{app.category}</div>
                 </div>
-
                 {/* Navigation Tabs */}
                 <AppTabs 
                   currentTab={currentTab}
                   platform={params.platform}
                   appId={params.appId}
                 />
-
+                {/* Flow Types Filter */}
+                {currentTab === 'flows' && app.flowTypes && app.flowTypes.length > 0 && (
+                  <FlowTypeSelect
+                    flowTypes={app.flowTypes}
+                    defaultValue={selectedFlowType}
+                  />
+                )}
+                
                 {/* About */}
                 {app.description && (
                   <div>
@@ -127,11 +136,11 @@ export default async function AppPage({ params, searchParams }: AppPageProps) {
                 {/* Stats */}
                 <div>
                   <div className="text-xs text-zinc-500">Всего экранов</div>
-                  <div className="text-sm">{app.screens.length}</div>
+                  <div className="text-sm">{pluralizeScreens(app.screens.length)}</div>
                 </div>
 
                 <div>
-                  <div className="text-xs text-zinc-500">Всего потоков</div>
+                  <div className="text-xs text-zinc-500">Всего флоу</div>
                   <div className="text-sm">{app.flowTypes?.length}</div>
                 </div>
 
@@ -142,14 +151,14 @@ export default async function AppPage({ params, searchParams }: AppPageProps) {
                 </div>
 
                 {/* Flow Types */}
-                {app.flowTypes && app.flowTypes.length > 0 && (
+                {/* {app.flowTypes && app.flowTypes.length > 0 && (
                   <div>
-                    <div className="text-xs text-zinc-500">Типы потоков</div>
+                    <div className="text-xs text-zinc-500">Типы флоу</div>
                     <div className="text-sm">
                       {app.flowTypes.map(flowType => flowType.name).join(", ")}
                     </div>
                   </div>
-                )}
+                )} */}
               </div>
             </div>
           </div>
@@ -163,6 +172,7 @@ export default async function AppPage({ params, searchParams }: AppPageProps) {
             initialFlowTypes={app.flowTypes || []}
             initialFlowScreens={app.screens}
             appName={app.name}
+            selectedFlowType={selectedFlowType}
           />
         </main>
       </div>

@@ -17,7 +17,7 @@ const ScreensView = dynamic(() => import('./ScreensView'), {
 const FlowsView = dynamic(() => import('./FlowsView'), {
   loading: () => (
     <div className="w-full min-h-[calc(100vh-200px)] flex items-center justify-center">
-      <div className="text-zinc-400 text-lg">Загрузка потоков...</div>
+      <div className="text-zinc-400 text-lg">Загрузка флоу...</div>
     </div>
   ),
   ssr: false
@@ -26,7 +26,7 @@ const FlowsView = dynamic(() => import('./FlowsView'), {
 const DesktopFlowsView = dynamic(() => import('./DesktopFlowsView'), {
   loading: () => (
     <div className="w-full min-h-[calc(100vh-200px)] flex items-center justify-center">
-      <div className="text-zinc-400 text-lg">Загрузка потоков...</div>
+      <div className="text-zinc-400 text-lg">Загрузка флоу...</div>
     </div>
   ),
   ssr: false
@@ -43,6 +43,7 @@ interface DesktopFlowsViewProps {
   flowTypes: Array<{ name: string }>;
   appName: string;
   isDesktop: boolean;
+  selectedFlowType?: string;
 }
 
 interface TabContentProps {
@@ -51,6 +52,7 @@ interface TabContentProps {
   initialFlowTypes: Array<{ name: string }>;
   initialFlowScreens: any[];
   appName: string;
+  selectedFlowType?: string;
 }
 
 export function TabContent({
@@ -58,7 +60,8 @@ export function TabContent({
   initialScreens,
   initialFlowTypes,
   initialFlowScreens,
-  appName
+  appName,
+  selectedFlowType
 }: TabContentProps) {
   const params = useParams();
   const platform = params.platform as string;
@@ -123,11 +126,11 @@ export function TabContent({
   // Используем DesktopFlowsView только для desktop приложений
   if (platform === 'desktop') {
     return (
-      <DesktopFlowsView
-        screens={activeTabData.screens}
-        flowTypes={activeTabData.flowTypes || []}
-        appName={activeTabData.appName}
+      <DesktopFlowsView 
+        {...activeTabData} 
+        flowTypes={activeTabData.flowTypes || []} 
         isDesktop={true}
+        selectedFlowType={selectedFlowType}
       />
     )
   }
@@ -136,7 +139,8 @@ export function TabContent({
     <FlowsView 
       {...activeTabData} 
       flowTypes={activeTabData.flowTypes || []} 
-      isDesktop={false} 
+      isDesktop={platform === 'desktop'}
+      selectedFlowType={selectedFlowType}
     />
   )
 }

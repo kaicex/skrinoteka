@@ -33,7 +33,7 @@ export default function MainNav() {
                       : 'text-zinc-500'
                   )}
                 >
-                  Мобильные
+                  Смартфон
                 </Link>
                 <Link
                   href="/browse/desktop"

@@ -1,0 +1,121 @@
+@startuml Mobbin Architecture
+
+' Определение стилей
+skinparam componentStyle rectangle
+skinparam backgroundColor transparent
+skinparam defaultFontName Arial
+skinparam arrowColor #666666
+
+package "Frontend (Next.js)" {
+    [Pages] as pages
+    [Components] as components
+    [Hooks] as hooks
+    [Utils] as utils
+    [Styles] as styles
+    
+    package "Core Components" {
+        [FlowModal] as flowModal
+        [ScreenModal] as screenModal
+        [UI Components] as uiComponents
+    }
+}
+
+package "Backend Services" {
+    [API Routes] as apiRoutes
+    [Middleware] as middleware
+    [Database] as db
+}
+
+package "Static Assets" {
+    [Public Files] as publicFiles
+}
+
+package "Configuration" {
+    [Next Config] as nextConfig
+    [Tailwind Config] as tailwindConfig
+    [TypeScript Config] as tsConfig
+}
+
+' Зависимости
+pages --> components
+components --> hooks
+components --> utils
+components --> styles
+components --> uiComponents
+
+flowModal --> uiComponents
+screenModal --> uiComponents
+
+pages --> apiRoutes
+apiRoutes --> middleware
+middleware --> db
+
+' Внешние зависимости
+[Browser] --> pages : HTTP/HTTPS
+[CDN] --> publicFiles
+
+note right of pages
+  Маршрутизация на основе файловой системы
+  с динамическими параметрами [platform] и [appId]
+end note
+
+note right of components
+  Переиспользуемые компоненты:
+  - FlowModal для просмотра потоков
+  - ScreenModal для просмотра экранов
+end note
+
+note right of db
+  SQL база данных
+  (см. schema.sql)
+end note
+
+@enduml
+
+@startuml Customer Flow
+
+' Определение стилей
+skinparam activityDiagramStyle dot
+skinparam backgroundColor transparent
+skinparam defaultFontName Arial
+skinparam arrowColor #666666
+
+|Начало работы|
+start
+:Заходит на сайт;
+:Просматривает главную страницу;
+
+|#AntiqueWhite|Поиск и Фильтрация|
+:Выбор платформы;
+split
+  :Поиск по названию приложения;
+split again
+  :Выбор из списка популярных;
+end split
+:Применение фильтров;
+note right
+  - По категории
+  - По элементам интерфейса
+  - По паттернам
+end note
+
+|#LightBlue|Просмотр приложения|
+:Просмотр информации о приложении;
+fork
+  :Просмотр скриншотов;
+  :Скачивание скриншота;
+  :Копирование ссылки на скриншот;
+fork again
+  :Просмотр потоков;
+  :Пошаговый просмотр экранов в потоке;
+  :Скачивание потока;
+  :Копирование ссылки на поток;
+end fork
+
+|#LightGreen|Навигация|
+:Возврат к списку приложений;
+:Выбор другой платформы;
+
+stop
+
+@enduml

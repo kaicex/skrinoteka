@@ -5,6 +5,7 @@ import { FlowModal } from "./FlowModal"
 import { ChevronRight } from "lucide-react"
 import { useSearchParams, useRouter, usePathname } from 'next/navigation'
 import Image from 'next/image'
+import { pluralizeScreens } from '@/lib/utils/pluralize'
 
 interface Screen {
   id: string
@@ -23,6 +24,7 @@ interface DesktopFlowsViewProps {
   flowTypes: { name: string }[]
   appName: string
   isDesktop?: boolean
+  selectedFlowType?: string
 }
 
 const LazyImage = ({ src, alt, className, priority = false }: { 
@@ -50,7 +52,8 @@ const DesktopFlowsView = ({
   screens, 
   flowTypes, 
   appName,
-  isDesktop = true 
+  isDesktop = true,
+  selectedFlowType
 }: DesktopFlowsViewProps) => {
   const [selectedFlow, setSelectedFlow] = useState<{
     screens: { url: string; id: string }[]
@@ -108,30 +111,42 @@ const DesktopFlowsView = ({
     updateURL(flowType, index)
   }, [updateURL])
 
-  const groupedScreens = useMemo(() => {
-    return flowTypes.map(flowType => ({
-      type: flowType.name,
-      screens: screens.filter(screen => 
-        screen.flowType?.name === flowType.name &&
-        screen.image?.url &&
-        screen.image.url.trim() !== ''
-      )
-    }))
-  }, [flowTypes, screens])
+  // Фильтруем флоу по выбранному типу
+  const filteredFlows = useMemo(() => {
+    if (!selectedFlowType || selectedFlowType === "Все флоу") {
+      return flowTypes;
+    }
+    return flowTypes.filter(flow => flow.name === selectedFlowType);
+  }, [flowTypes, selectedFlowType]);
+
+  const flowGroups = useMemo(() => {
+    return filteredFlows.map(flowType => {
+      const filteredScreens = screens.filter(screen => {
+        const matches = screen.flowType?.name === flowType.name && 
+                       screen.image?.url;
+        return matches;
+      });
+
+      return {
+        type: flowType.name,
+        screens: filteredScreens,
+      };
+    }).filter(group => group.screens.length > 0);
+  }, [filteredFlows, screens]);
 
   if (!flowTypes || flowTypes.length === 0 || !screens || screens.length === 0) {
     return (
       <div className="text-center py-8">
-        <p className="text-zinc-500">No flows available</p>
+        <p className="text-zinc-500">Не найдено флоу</p>
       </div>
     )
   }
 
   return (
     <div className="grid gap-4">
-      <h2 className="text-4xl font-semibold text-zinc-900">Flows</h2>
+      <h2 className="text-4xl font-semibold text-zinc-900">Флоу</h2>
       <div className="space-y-12">
-        {groupedScreens.map((group) => {
+        {flowGroups.map((group) => {
           if (group.screens.length === 0) return null
 
           return (
@@ -153,7 +168,7 @@ const DesktopFlowsView = ({
                     <ChevronRight className="w-5 h-5 text-zinc-400 ml-1 transition-transform duration-200 ease-in-out group-hover:translate-x-1" />
                   </div>
                   <span className="text-zinc-400">•</span>
-                  <span className="text-zinc-500">{group.screens.length} screens</span>
+                  <span className="text-zinc-500">{pluralizeScreens(group.screens.length)}</span>
                 </div>
               </div>
 

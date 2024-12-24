@@ -5,6 +5,7 @@ import { useSearchParams, useRouter, usePathname } from 'next/navigation'
 import { LazyImage } from './LazyImage'
 import { FlowModal } from './FlowModal'
 import { ChevronRight } from "lucide-react"
+import { pluralizeScreens } from '@/lib/utils/pluralize'
 
 interface Screen {
   id: string
@@ -23,13 +24,15 @@ interface FlowsViewProps {
   flowTypes: { name: string }[]
   appName: string
   isDesktop?: boolean
+  selectedFlowType?: string
 }
 
 const FlowsView = ({ 
   screens, 
   flowTypes, 
   appName,
-  isDesktop = false 
+  isDesktop = false,
+  selectedFlowType
 }: FlowsViewProps) => {
   const [selectedFlow, setSelectedFlow] = useState<{
     screens: { url: string; id: string }[]
@@ -108,8 +111,16 @@ const FlowsView = ({
     }
   }, [selectedFlow, currentIndex, updateURL])
 
+  // Фильтруем флоу по выбранному типу
+  const filteredFlows = useMemo(() => {
+    if (!selectedFlowType || selectedFlowType === "Все флоу") {
+      return flowTypes;
+    }
+    return flowTypes.filter(flow => flow.name === selectedFlowType);
+  }, [flowTypes, selectedFlowType]);
+
   const flowGroups = useMemo(() => {
-    const groups = flowTypes.map(flowType => {
+    const groups = filteredFlows.map(flowType => {
       const filteredScreens = screens.filter(screen => {
         const matches = screen.flowType?.name === flowType.name && 
                        screen.image?.url && 
@@ -124,19 +135,19 @@ const FlowsView = ({
     });
     
     return groups.filter(group => group.screens.length > 0);
-  }, [flowTypes, screens])
+  }, [filteredFlows, screens])
 
   if (!flowTypes || flowTypes.length === 0 || !screens || screens.length === 0) {
     return (
       <div className="text-center py-8">
-        <p className="text-zinc-500">Потоки отсутствуют</p>
+        <p className="text-zinc-500">Флоу отсутствуют</p>
       </div>
     )
   }
 
   return (
     <div className="grid gap-4">
-      <h2 className="text-4xl font-semibold text-zinc-900">Потоки</h2>
+      <h2 className="text-4xl font-semibold text-zinc-900">Флоу</h2>
       <div className="space-y-12">
         {flowGroups.map(group => {
           if (group.screens.length === 0) {
@@ -156,13 +167,13 @@ const FlowsView = ({
                   }
                 }}
               >
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 text-sm">
                   <div className="flex items-center group">
-                    <h3 className="text-xl font-semibold text-zinc-900">{group.type}</h3>
+                    <span>{group.type}</span>
                     <ChevronRight className="w-5 h-5 text-zinc-400 ml-1 transition-transform duration-200 ease-in-out group-hover:translate-x-1" />
                   </div>
                   <span className="text-zinc-400">•</span>
-                  <span className="text-zinc-500">{group.screens.length} экранов</span>
+                  <span className="text-zinc-500">{pluralizeScreens(group.screens.length)}</span>
                 </div>
               </div>
 

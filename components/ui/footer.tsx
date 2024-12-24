@@ -55,7 +55,7 @@ export default function Footer() {
         <div className="flex flex-col md:flex-row justify-between items-center py-4 mt-8 border-border">
           <div className="flex items-center gap-4 mb-4 md:mb-0">
             <Link href="/" className="text-xl font-bold text-foreground">
-              Skreenoteka
+              Sсreenoteka
             </Link>
             <span className="text-muted-foreground text-sm">
               &copy; {new Date().getFullYear()} All rights reserved.
@@ -64,14 +64,14 @@ export default function Footer() {
 
           <div className="flex items-center space-x-6">
             <span className="text-muted-foreground text-sm">
-              Dev/des by{' '}
+              dev by{' '}
               <Link
                 href="https://t.me/kaicex"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-foreground hover:text-foreground transition-colors"
               >
-                Kairat
+                kai
               </Link>
             </span>
           </div>

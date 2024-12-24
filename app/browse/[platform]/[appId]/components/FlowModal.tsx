@@ -11,6 +11,7 @@ import {
 } from "@/components/ui/dialog"
 import { ChevronLeft, ChevronRight, X, ArrowDown, ClipboardCopy, Check, Download } from "lucide-react"
 import JSZip from 'jszip'
+import { pluralizeScreens } from '@/lib/utils/pluralize'
 
 interface FlowModalProps {
   isOpen: boolean
@@ -49,12 +50,12 @@ function CopyButton({ url }: { url: string }) {
       {copied ? (
         <>
           <Check className="w-4 h-4 text-zinc-800" />
-          <span className="text-zinc-800 text-sm">Скопировано</span>
+          <span className="text-zinc-800 text-sm">Скопировано в буфер</span>
         </>
       ) : (
         <>
           <ClipboardCopy className="w-4 h-4 text-zinc-800" />
-          <span className="text-zinc-800 text-sm">Скопировать ссылку</span>
+          <span className="text-zinc-800 text-sm">Поделиться ссылкой</span>
         </>
       )}
     </button>
@@ -107,7 +108,7 @@ function DownloadButton({ screens, appName, flowType }: { screens: { url: string
     >
       <ArrowDown className="w-4 h-4 text-zinc-800" />
       <span className="text-zinc-800 text-sm">
-        {downloading ? 'Загрузка...' : 'Скачать поток'}
+        {downloading ? 'Загрузка...' : 'Скачать флоу'}
       </span>
     </button>
   )
@@ -250,10 +251,10 @@ export function FlowModal({
         className="max-w-[calc(100vw-1px)] max-h-[95vh] bg-white rounded-xl border overflow-hidden p-0"
       >
         <DialogTitle className="sr-only">
-          {`${appName} ${flowType} Поток`}
+          {`${appName} ${flowType} Флоу`}
         </DialogTitle>
         <DialogDescription className="sr-only">
-          {`Просмотр потока ${flowType} из ${appName}`}
+          {`Просмотр флоу ${flowType} из ${appName}`}
         </DialogDescription>
         <div className="h-full flex flex-col">
           {/* Top panel */}
@@ -314,10 +315,10 @@ export function FlowModal({
                           e.stopPropagation();
                           handleDownloadScreen(screen.url, idx);
                         }}
-                        className="absolute bottom-3 right-3 bg-white/90 p-2 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-200 hover:bg-white hover:shadow-md z-10"
+                        className="absolute bottom-3 right-3 flex items-center gap-2 hover:bg-zinc-200 transition-colors cursor-pointer rounded-full px-3 py-1.5 bg-zinc-100 opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-10"
                         aria-label="Download screen"
                       >
-                        <Download className="w-5 h-5 text-zinc-700" />
+                        <span className="text-zinc-800 text-sm">Скачать экран</span>
                       </button>
                     </div>
                   </div>
@@ -344,7 +345,7 @@ export function FlowModal({
                 <span className="text-zinc-400 text-sm">•</span>
                 <span className="text-zinc-400 text-sm">{flowType}</span>
                 <span className="text-zinc-400 text-sm">•</span>
-                <span className="text-zinc-400 text-sm">{screens.length} экранов</span>
+                <span className="text-zinc-400 text-sm">{pluralizeScreens(screens.length)}</span>
               </div>
             </div>
             <div className="flex items-center gap-2">
