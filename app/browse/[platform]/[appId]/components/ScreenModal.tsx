@@ -247,7 +247,7 @@ function CopyImageButton({ screenUrl }: { screenUrl: string }) {
   return (
     <button
       onClick={copyImageToClipboard}
-      className="flex items-center gap-2 hover:bg-zinc-200 transition-colors cursor-pointer rounded-full px-3 py-1.5 bg-zinc-100"
+      className="hidden md:flex items-center gap-2 hover:bg-zinc-200 transition-colors cursor-pointer rounded-full px-3 py-1.5 bg-zinc-100"
       aria-label="Скопировать изображение"
     >
       {error ? (
