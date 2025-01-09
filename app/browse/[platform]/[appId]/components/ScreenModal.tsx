@@ -109,6 +109,7 @@ export function ScreenModal({
                 src={currentScreen.url}
                 alt={`${appName} ${screenType.toLowerCase()}`}
                 className="w-full h-full object-cover object-top"
+                crossOrigin="anonymous"
               />
             </div>
 
@@ -180,30 +181,80 @@ function CopyButton() {
 
 function CopyImageButton({ screenUrl }: { screenUrl: string }) {
   const [copied, setCopied] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const copyImageToClipboard = async () => {
     try {
-      const response = await fetch(screenUrl);
-      const blob = await response.blob();
+      console.log('Starting copy process for:', screenUrl);
+      
+      // Используем уже загруженное изображение из DOM
+      const img = document.querySelector(`.h-full.flex.items-center img[src="${screenUrl}"]`) as HTMLImageElement;
+      if (!img) {
+        throw new Error('Image not found in DOM');
+      }
+
+      // Создаем ImageBitmap из существующего изображения
+      const imageBitmap = await createImageBitmap(img);
+      
+      // Создаем canvas нужного размера
+      const canvas = document.createElement('canvas');
+      canvas.width = imageBitmap.width;
+      canvas.height = imageBitmap.height;
+      
+      // Получаем контекст и рисуем изображение
+      const ctx = canvas.getContext('2d');
+      if (!ctx) {
+        throw new Error('Failed to get canvas context');
+      }
+      
+      ctx.drawImage(imageBitmap, 0, 0);
+      console.log('Image drawn to canvas');
+      
+      // Получаем blob из canvas
+      const blob = await new Promise<Blob>((resolve, reject) => {
+        try {
+          canvas.toBlob((blob) => {
+            if (blob) {
+              console.log('Blob created:', blob.type, blob.size);
+              resolve(blob);
+            } else {
+              reject(new Error('Failed to create blob'));
+            }
+          }, 'image/png');
+        } catch (e) {
+          reject(e);
+        }
+      });
+
+      console.log('Attempting to write to clipboard');
       await navigator.clipboard.write([
         new ClipboardItem({
           [blob.type]: blob
         })
       ]);
+      
+      console.log('Successfully copied to clipboard');
+      setError(null);
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     } catch (err) {
       console.error('Failed to copy image:', err);
+      setError(err instanceof Error ? err.message : 'Failed to copy image');
+      setCopied(false);
     }
   };
 
   return (
     <button
       onClick={copyImageToClipboard}
-      className="hidden md:flex items-center gap-2 hover:bg-zinc-200 transition-colors cursor-pointer rounded-full px-3 py-1.5 bg-zinc-100"
+      className="flex items-center gap-2 hover:bg-zinc-200 transition-colors cursor-pointer rounded-full px-3 py-1.5 bg-zinc-100"
       aria-label="Скопировать изображение"
     >
-      {copied ? (
+      {error ? (
+        <>
+          <span className="text-red-500 text-sm">Ошибка копирования</span>
+        </>
+      ) : copied ? (
         <>
           <Check className="w-4 h-4 text-zinc-800" />
           <span className="text-zinc-800 text-sm">Изображение скопировано</span>
