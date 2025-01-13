@@ -79,7 +79,7 @@ export default async function AppPage({ params, searchParams }: AppPageProps) {
         {/* Sidebar */}
         <aside className="w-full md:w-44 shrink-0">
           
-          <div className="md:sticky md:top-[64px] flex flex-col min-h-[calc(100vh-64px)] pb-16">
+          <div className="md:sticky md:top-[64px] flex flex-col md:min-h-[calc(100vh-64px)] pb-16">
             <div className="space-y-6">
               {/* App Info */}
               <div className="flex flex-col gap-5">
@@ -91,22 +91,36 @@ export default async function AppPage({ params, searchParams }: AppPageProps) {
                   >
                     <ArrowLeft className="w-6 h-6" />
                   </Link>
+                  {app.logo?.url && (
+                    <div className="rounded-xl w-10 h-10 flex-shrink-0 bg-zinc-100 flex items-center justify-center">
+                      <Image
+                        src={app.logo.url}
+                        alt={`${app.name} logo`}
+                        width={32}
+                        height={32}
+                        className="w-8 h-8 object-contain max-w-full max-h-full rounded-xl"
+                      />
+                    </div>
+                  )}
                   <div>
                     <h1 className="text-2xl font-semibold">{app.name}</h1>
                     <div className="text-sm text-zinc-500 -mt-1">{app.category}</div>
                   </div>
                 </div>
-                {app.logo?.url && (
-                  <div className="rounded-3xl w-full aspect-square flex-shrink-0 bg-zinc-100 flex items-center justify-center">
-                    <Image
-                      src={app.logo.url}
-                      alt={`${app.name} logo`}
-                      width={140}
-                      height={140}
-                      className="object-contain max-w-full max-h-full rounded-3xl"
-                    />
-                  </div>
-                )}
+                {/* Desktop Logo */}
+                <div className="hidden md:block">
+                  {app.logo?.url && (
+                    <div className="rounded-3xl w-full aspect-square flex-shrink-0 bg-zinc-100 flex items-center justify-center">
+                      <Image
+                        src={app.logo.url}
+                        alt={`${app.name} logo`}
+                        width={140}
+                        height={140}
+                        className="w-[140px] h-[140px] object-contain max-w-full max-h-full rounded-3xl"
+                      />
+                    </div>
+                  )}
+                </div>
                 <div>
                   <h1 className="hidden md:block text-2xl font-semibold">{app.name}</h1>
                   <div className="hidden md:block text-sm text-zinc-500 mt-1">{app.category}</div>
