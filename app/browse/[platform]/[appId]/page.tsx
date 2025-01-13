@@ -92,13 +92,13 @@ export default async function AppPage({ params, searchParams }: AppPageProps) {
                     <ArrowLeft className="w-6 h-6" />
                   </Link>
                   {app.logo?.url && (
-                    <div className="rounded-xl w-10 h-10 flex-shrink-0 bg-zinc-100 flex items-center justify-center">
+                    <div className="rounded-xl w-12 h-12 flex-shrink-0 bg-zinc-100 flex items-center justify-center">
                       <Image
                         src={app.logo.url}
                         alt={`${app.name} logo`}
-                        width={32}
-                        height={32}
-                        className="w-8 h-8 object-contain max-w-full max-h-full rounded-xl"
+                        width={48}
+                        height={48}
+                        className="w-12 h-12 object-contain max-w-full max-h-full rounded-xl"
                       />
                     </div>
                   )}
