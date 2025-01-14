@@ -248,7 +248,7 @@ export function FlowModal({
   return (
     <Dialog open={isOpen} onOpenChange={onClose} >
       <DialogContent 
-        className="max-w-[calc(100vw-1px)] max-h-[95vh] bg-white rounded-xl border overflow-hidden p-0"
+        className="max-w-[calc(100vw-1px)] max-h-[95svh] bg-white rounded-xl border overflow-hidden p-0"
       >
         <DialogTitle className="sr-only">
           {`${appName} ${flowType} Флоу`}
@@ -303,13 +303,15 @@ export function FlowModal({
                     <div 
                       className={`h-full max-h-[70vh] flex items-center ${platform === 'desktop' ? 'aspect-video' : 'aspect-[390/844]'} rounded-2xl border border-zinc-200 overflow-hidden box-border relative`}
                     >
-                      <img 
-                        src={screen.url} 
-                        alt={`${appName} screen ${idx + 1}`}
-                        className="w-full h-full object-cover object-top"
-                        loading="lazy"
-                      />
-                      <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-black/30 opacity-0 group-hover:opacity-100 transition-opacity duration-200" />
+                      <div className="w-full h-full overflow-hidden hover:overflow-y-auto [&::-webkit-scrollbar]:hidden">
+                        <img 
+                          src={screen.url} 
+                          alt={`${appName} screen ${idx + 1}`}
+                          className="w-full object-cover"
+                          loading="lazy"
+                        />
+                      </div>
+                      <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-black/30 opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none" />
                       <button 
                         onClick={(e) => {
                           e.stopPropagation();
