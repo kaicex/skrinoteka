@@ -80,7 +80,7 @@ export function ScreenModal({
         <DialogDescription className="sr-only">
           {`Просмотр ${screenType.toLowerCase()} из ${appName}`}
         </DialogDescription>
-        <div className="h-[90vh] flex flex-col">
+        <div className="h-[95svh] flex flex-col">
           {/* Top panel */}
           <div className="h-12 shrink-0 p-4 flex justify-end items-center">
             <button
@@ -104,13 +104,17 @@ export function ScreenModal({
               </button>
             )}
 
-            <div className={`h-full flex items-center ${platform === 'desktop' ? 'aspect-video' : 'aspect-[390/844]'} rounded-2xl border border-zinc-200 overflow-y-auto`}>
-              <img
-                src={currentScreen.url}
-                alt={`${appName} ${screenType.toLowerCase()}`}
-                className="w-full h-full object-cover object-top"
-                crossOrigin="anonymous"
-              />
+            <div className={`h-full flex items-center ${platform === 'desktop' ? 'aspect-video' : 'aspect-[390/844]'}`}>
+              <div className="w-full h-full rounded-2xl border border-zinc-200 overflow-hidden relative">
+                <div className="absolute inset-0 overflow-y-auto mix-blend-normal [&::-webkit-scrollbar]:!absolute [&::-webkit-scrollbar]:!right-0 [&::-webkit-scrollbar]:!w-0 hover:[&::-webkit-scrollbar]:!w-[6px] [&::-webkit-scrollbar-thumb]:!bg-black/20 [&::-webkit-scrollbar-thumb]:!rounded-full [&::-webkit-scrollbar-track]:!bg-transparent [&::-webkit-scrollbar]:!z-50">
+                    <img
+                      src={currentScreen.url}
+                      alt={`${appName} ${screenType.toLowerCase()}`}
+                      className="w-full h-auto object-cover"
+                      crossOrigin="anonymous"
+                    />
+                </div>
+              </div>
             </div>
 
             {onNext && !isLastScreen && (

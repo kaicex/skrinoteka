@@ -246,9 +246,10 @@ export function FlowModal({
   };
 
   return (
+    
     <Dialog open={isOpen} onOpenChange={onClose} >
       <DialogContent 
-        className="max-w-[calc(100vw-1px)] max-h-[95svh] bg-white rounded-xl border overflow-hidden p-0"
+        className="max-w-[calc(100vw-1px)] max-h-[100vh] bg-white rounded-xl border overflow-hidden p-0"
       >
         <DialogTitle className="sr-only">
           {`${appName} ${flowType} Флоу`}
@@ -285,7 +286,7 @@ export function FlowModal({
             )}
             
             <div 
-              className="h-full max-h-[70vh] overflow-x-auto flex items-center [&::-webkit-scrollbar]:hidden"
+              className="h-full max-h-[60svh] overflow-x-auto flex items-center [&::-webkit-scrollbar]:hidden"
               ref={scrollContainerRef}
               style={{ 
                 scrollbarWidth: 'none',
@@ -298,10 +299,10 @@ export function FlowModal({
                 {screens?.map((screen, idx) => (
                   <div 
                     key={`${modalId.current}-screen-${idx}`}
-                    className="flex-shrink-0 h-full max-h-[70vh] flex items-center group"
+                    className="flex-shrink-0 h-full max-h-[60svh] flex items-center group"
                   >
                     <div 
-                      className={`h-full max-h-[70vh] flex items-center ${platform === 'desktop' ? 'aspect-video' : 'aspect-[390/844]'} rounded-2xl border border-zinc-200 overflow-hidden box-border relative`}
+                      className={`h-full max-h-[60svh] flex items-center ${platform === 'desktop' ? 'aspect-video' : 'aspect-[390/844]'} rounded-2xl border border-zinc-200 overflow-hidden box-border relative`}
                     >
                       <div className="w-full h-full overflow-hidden hover:overflow-y-auto [&::-webkit-scrollbar]:hidden">
                         <img 
