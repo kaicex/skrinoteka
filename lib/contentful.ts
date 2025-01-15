@@ -50,7 +50,8 @@ export async function getApps(): Promise<App[]> {
         })) || [],
         flowType: screen.fields.flowType ? {
           name: screen.fields.flowType.fields?.name || ''
-        } : undefined
+        } : undefined,
+        thumbnail: screen.fields.thumbnail || false
       };
       
       screensByApp.get(appId)?.push(screenData);

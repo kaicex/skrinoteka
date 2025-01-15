@@ -20,6 +20,7 @@ interface AppCardProps {
       image?: {
         url: string;
       };
+      thumbnail?: boolean;
     }>;
     logo?: {
       url: string;
@@ -42,13 +43,13 @@ export function AppCard({ app, href }: AppCardProps) {
     
     return app.screens
       .filter((screen): screen is (typeof app.screens[0] & { image: { url: string } }) => {
-        // Проверяем наличие url
+        // Проверяем наличие url и thumbnail
         if (!screen?.image?.url) return false;
         
-        // Проверяем платформу
-        return screen.platform?.some(p => 
+        // Проверяем платформу и thumbnail
+        return (screen.platform?.some(p => 
           ['ios', 'android'].includes(p.name.toLowerCase())
-        ) ?? false;
+        ) ?? false) && screen.thumbnail === true;
       })
       .slice(0, 3);
   }, [app.screens]);

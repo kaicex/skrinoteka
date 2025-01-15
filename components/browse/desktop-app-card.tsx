@@ -25,7 +25,7 @@ export function DesktopAppCard({ app, href }: DesktopAppCardProps) {
     .filter(screen => 
       screen.platform?.some(p => 
         ['web', 'desktop'].includes(p.name.toLowerCase())
-      ) && screen.image?.url
+      ) && screen.image?.url && screen.thumbnail === true
     )
     .slice(0, 3);
 

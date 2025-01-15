@@ -10,6 +10,7 @@ export interface Screen {
   flowType?: {
     name: string;
   };
+  thumbnail?: boolean;
 }
 
 export interface App {
