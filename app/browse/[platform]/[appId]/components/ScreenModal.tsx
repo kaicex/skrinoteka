@@ -106,7 +106,7 @@ export function ScreenModal({
 
             <div className={`h-full flex items-center ${platform === 'desktop' ? 'aspect-video' : 'aspect-[390/844]'}`}>
               <div className="w-full h-full rounded-2xl border border-zinc-200 overflow-hidden relative">
-                <div className="absolute inset-0 overflow-y-auto mix-blend-normal [&::-webkit-scrollbar]:!absolute [&::-webkit-scrollbar]:!right-0 [&::-webkit-scrollbar]:!w-0 hover:[&::-webkit-scrollbar]:!w-[6px] [&::-webkit-scrollbar-thumb]:!bg-black/20 [&::-webkit-scrollbar-thumb]:!rounded-full [&::-webkit-scrollbar-track]:!bg-transparent [&::-webkit-scrollbar]:!z-50">
+                <div className="absolute inset-0 overflow-y-auto mix-blend-normal [scrollbar-width:24px] [scrollbar-color:rgb(0_0_0)_transparent] [&::-webkit-scrollbar]:w-[24px] [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-black [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:border-[8px] [&::-webkit-scrollbar-thumb]:border-solid [&::-webkit-scrollbar-thumb]:border-transparent [&::-webkit-scrollbar-thumb]:bg-clip-padding">
                     <img
                       src={currentScreen.url}
                       alt={`${appName} ${screenType.toLowerCase()}`}

@@ -304,7 +304,7 @@ export function FlowModal({
                     <div 
                       className={`h-full max-h-[64svh] md:max-h-[80svh] flex items-center ${platform === 'desktop' ? 'aspect-video' : 'aspect-[390/844]'} rounded-2xl border border-zinc-200 overflow-hidden box-border relative`}
                     >
-                      <div className="w-full h-full overflow-hidden hover:overflow-y-auto [&::-webkit-scrollbar]:hidden">
+                      <div className="w-full h-full overflow-y-auto relative [scrollbar-width:24px] [scrollbar-color:rgb(0_0_0)_transparent] [&::-webkit-scrollbar]:w-[24px] [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-black [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:border-[8px] [&::-webkit-scrollbar-thumb]:border-solid [&::-webkit-scrollbar-thumb]:border-transparent [&::-webkit-scrollbar-thumb]:bg-clip-padding">
                         <img 
                           src={screen.url} 
                           alt={`${appName} screen ${idx + 1}`}
