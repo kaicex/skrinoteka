@@ -18,13 +18,16 @@ import Link from 'next/link';
 import { AppCard } from '@/components/browse/app-card';
 import { useInView } from 'react-intersection-observer';
 import Fuse from 'fuse.js';
+import { useRouter, useSearchParams } from 'next/navigation';
 
 export default function MobileBrowsePage() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
   const [apps, setApps] = useState<App[]>([]);
   const [filteredApps, setFilteredApps] = useState<App[]>([]);
   const [displayedApps, setDisplayedApps] = useState<App[]>([]);
   const [selectedCategory, setSelectedCategory] = useState("Все");
-  const [selectedFlowType, setSelectedFlowType] = useState("Все");
+  const [selectedFlowType, setSelectedFlowType] = useState(searchParams.get('flowType') || "Все");
   const [searchQuery, setSearchQuery] = useState("");
   const [categories, setCategories] = useState<string[]>([]);
   const [flowTypes, setFlowTypes] = useState<string[]>([]);
@@ -123,6 +126,15 @@ export default function MobileBrowsePage() {
   const handleFlowTypeSelect = (value: string) => {
     setSelectedFlowType(value);
     filterApps(selectedCategory, value, searchQuery);
+    
+    // Обновляем URL
+    const params = new URLSearchParams(searchParams.toString());
+    if (value === "Все") {
+      params.delete('flowType');
+    } else {
+      params.set('flowType', value);
+    }
+    router.replace(`/browse/mobile?${params.toString()}`);
   };
 
   const handleSearch = (value: string) => {

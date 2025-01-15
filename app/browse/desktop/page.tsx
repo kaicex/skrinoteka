@@ -17,12 +17,15 @@ import Link from 'next/link';
 import { DesktopAppCard } from '@/components/browse/desktop-app-card';
 import { Search } from 'lucide-react';
 import Fuse from 'fuse.js';
+import { useRouter, useSearchParams } from 'next/navigation';
 
 export default function DesktopBrowsePage() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
   const [apps, setApps] = useState<App[]>([]);
   const [filteredApps, setFilteredApps] = useState<App[]>([]);
   const [selectedCategory, setSelectedCategory] = useState("Все");
-  const [selectedFlowType, setSelectedFlowType] = useState("Все");
+  const [selectedFlowType, setSelectedFlowType] = useState(searchParams.get('flowType') || "Все");
   const [searchQuery, setSearchQuery] = useState("");
   const [categories, setCategories] = useState<string[]>([]);
   const [flowTypes, setFlowTypes] = useState<string[]>([]);
@@ -108,6 +111,15 @@ export default function DesktopBrowsePage() {
   const handleFlowTypeSelect = (value: string) => {
     setSelectedFlowType(value);
     filterApps(selectedCategory, value, searchQuery);
+    
+    // Обновляем URL
+    const params = new URLSearchParams(searchParams.toString());
+    if (value === "Все") {
+      params.delete('flowType');
+    } else {
+      params.set('flowType', value);
+    }
+    router.replace(`/browse/desktop?${params.toString()}`);
   };
 
   const handleSearch = (value: string) => {
@@ -184,7 +196,7 @@ export default function DesktopBrowsePage() {
                 <DesktopAppCard
                   key={app.id}
                   app={app}
-                  href={`/browse/desktop/${app.id}`}
+                  href={selectedFlowType !== "Все" ? `/browse/desktop/${app.id}?flowType=${encodeURIComponent(selectedFlowType)}` : `/browse/desktop/${app.id}`}
                 />
               ))}
             </div>
