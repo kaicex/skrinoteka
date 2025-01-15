@@ -286,7 +286,7 @@ export function FlowModal({
             )}
             
             <div 
-              className="h-full max-h-[60svh] overflow-x-auto flex items-center [&::-webkit-scrollbar]:hidden"
+              className="h-full max-h-[64svh] overflow-x-auto flex items-center [&::-webkit-scrollbar]:hidden"
               ref={scrollContainerRef}
               style={{ 
                 scrollbarWidth: 'none',
@@ -299,10 +299,10 @@ export function FlowModal({
                 {screens?.map((screen, idx) => (
                   <div 
                     key={`${modalId.current}-screen-${idx}`}
-                    className="flex-shrink-0 h-full max-h-[60svh] flex items-center group"
+                    className="flex-shrink-0 h-full max-h-[64svh] flex items-center group"
                   >
                     <div 
-                      className={`h-full max-h-[60svh] flex items-center ${platform === 'desktop' ? 'aspect-video' : 'aspect-[390/844]'} rounded-2xl border border-zinc-200 overflow-hidden box-border relative`}
+                      className={`h-full max-h-[64svh] flex items-center ${platform === 'desktop' ? 'aspect-video' : 'aspect-[390/844]'} rounded-2xl border border-zinc-200 overflow-hidden box-border relative`}
                     >
                       <div className="w-full h-full overflow-hidden hover:overflow-y-auto [&::-webkit-scrollbar]:hidden">
                         <img 
@@ -312,13 +312,13 @@ export function FlowModal({
                           loading="lazy"
                         />
                       </div>
-                      <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-black/30 opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none" />
+                      <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-black/30 opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none hidden md:block" />
                       <button 
                         onClick={(e) => {
                           e.stopPropagation();
                           handleDownloadScreen(screen.url, idx);
                         }}
-                        className="absolute bottom-3 right-3 flex items-center gap-2 hover:bg-zinc-200 transition-colors cursor-pointer rounded-full px-3 py-1.5 bg-zinc-100 opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-10"
+                        className="absolute bottom-3 right-3 flex items-center gap-2 hover:bg-zinc-200 transition-colors cursor-pointer rounded-full px-3 py-1.5 bg-zinc-100 opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-10 hidden md:flex"
                         aria-label="Download screen"
                       >
                         <span className="text-zinc-800 text-sm">Скачать экран</span>

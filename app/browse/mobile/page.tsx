@@ -139,11 +139,11 @@ export default function MobileBrowsePage() {
       <div className="space-y-8">
         <div className="flex flex-col gap-4">
           <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4">
-            <div className="flex flex-row gap-4 md:w-auto">
-              <div className="flex flex-col gap-1.5">
+            <div className="grid grid-cols-2 md:flex md:flex-row gap-4 w-full md:w-auto">
+              <div className="flex flex-col gap-1.5 w-full md:w-auto">
                 <label className="text-sm text-zinc-500">Категория</label>
                 <Select value={selectedCategory} onValueChange={handleCategorySelect}>
-                  <SelectTrigger className="flex-1 md:flex-initial md:w-[200px] h-9">
+                  <SelectTrigger className="w-full md:w-[200px] h-9">
                     <SelectValue placeholder="Выберите категорию" />
                   </SelectTrigger>
                   <SelectContent>
@@ -156,10 +156,10 @@ export default function MobileBrowsePage() {
                 </Select>
               </div>
 
-              <div className="flex flex-col gap-1.5">
+              <div className="flex flex-col gap-1.5 w-full md:w-auto">
                 <label className="text-sm text-zinc-500">Тип флоу</label>
                 <Select value={selectedFlowType} onValueChange={handleFlowTypeSelect}>
-                  <SelectTrigger className="flex-1 md:flex-initial md:w-[200px] h-9">
+                  <SelectTrigger className="w-full md:w-[200px] h-9">
                     <SelectValue placeholder="Выберите тип" />
                   </SelectTrigger>
                   <SelectContent>
@@ -195,7 +195,7 @@ export default function MobileBrowsePage() {
                   screens: app.screens,
                   logo: app.logo
                 }}
-                href={`/browse/mobile/${app.id}`}
+                href={selectedFlowType !== "Все" ? `/browse/mobile/${app.id}?flowType=${encodeURIComponent(selectedFlowType)}` : `/browse/mobile/${app.id}`}
               />
             ))}
           </AppGrid>

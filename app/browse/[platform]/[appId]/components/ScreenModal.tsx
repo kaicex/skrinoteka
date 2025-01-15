@@ -80,7 +80,7 @@ export function ScreenModal({
         <DialogDescription className="sr-only">
           {`Просмотр ${screenType.toLowerCase()} из ${appName}`}
         </DialogDescription>
-        <div className="h-[95svh] flex flex-col">
+        <div className="h-[96svh] flex flex-col">
           {/* Top panel */}
           <div className="h-12 shrink-0 p-4 flex justify-end items-center">
             <button
