@@ -286,7 +286,7 @@ export function FlowModal({
             )}
             
             <div 
-              className="h-full max-h-[64svh] overflow-x-auto flex items-center [&::-webkit-scrollbar]:hidden"
+              className="h-full max-h-[64svh] md:max-h-[80svh] overflow-x-auto flex items-center [&::-webkit-scrollbar]:hidden"
               ref={scrollContainerRef}
               style={{ 
                 scrollbarWidth: 'none',
@@ -299,10 +299,10 @@ export function FlowModal({
                 {screens?.map((screen, idx) => (
                   <div 
                     key={`${modalId.current}-screen-${idx}`}
-                    className="flex-shrink-0 h-full max-h-[64svh] flex items-center group"
+                    className="flex-shrink-0 h-full max-h-[64svh] md:max-h-[80svh] flex items-center group"
                   >
                     <div 
-                      className={`h-full max-h-[64svh] flex items-center ${platform === 'desktop' ? 'aspect-video' : 'aspect-[390/844]'} rounded-2xl border border-zinc-200 overflow-hidden box-border relative`}
+                      className={`h-full max-h-[64svh] md:max-h-[80svh] flex items-center ${platform === 'desktop' ? 'aspect-video' : 'aspect-[390/844]'} rounded-2xl border border-zinc-200 overflow-hidden box-border relative`}
                     >
                       <div className="w-full h-full overflow-hidden hover:overflow-y-auto [&::-webkit-scrollbar]:hidden">
                         <img 
