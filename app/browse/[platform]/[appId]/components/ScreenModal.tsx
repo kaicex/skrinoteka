@@ -106,13 +106,68 @@ export function ScreenModal({
 
             <div className={`h-full flex items-center ${platform === 'desktop' ? 'aspect-video' : 'aspect-[390/844]'}`}>
               <div className="w-full h-full rounded-2xl border border-zinc-200 overflow-hidden relative">
-                <div className="absolute inset-0 overflow-y-auto mix-blend-normal [scrollbar-width:24px] [scrollbar-color:rgb(0_0_0)_transparent] [&::-webkit-scrollbar]:w-[24px] [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-black [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:border-[8px] [&::-webkit-scrollbar-thumb]:border-solid [&::-webkit-scrollbar-thumb]:border-transparent [&::-webkit-scrollbar-thumb]:bg-clip-padding">
+                {/* Image with custom scroll */}
+                <div className="w-full h-full relative">
+                  <div 
+                    className="w-full h-full overflow-y-auto [&::-webkit-scrollbar]:hidden scroll-container"
+                    onScroll={(e) => {
+                      const container = e.currentTarget;
+                      const scrollPercentage = (container.scrollTop / (container.scrollHeight - container.clientHeight)) * 100;
+                      const thumbElement = container.parentElement?.querySelector('.custom-scrollbar-thumb') as HTMLElement;
+                      if (thumbElement) {
+                        thumbElement.style.top = `${scrollPercentage}%`;
+                      }
+                    }}
+                    ref={(el) => {
+                      if (el) {
+                        const hasScroll = el.scrollHeight > el.clientHeight;
+                        const thumbElement = el.parentElement?.querySelector('.custom-scrollbar-thumb') as HTMLElement;
+                        const trackElement = el.parentElement?.querySelector('.custom-scrollbar-track') as HTMLElement;
+                        
+                        if (thumbElement && trackElement) {
+                          // Показываем скролл только если он нужен
+                          trackElement.style.display = hasScroll ? 'block' : 'none';
+                          
+                          // Вычисляем размер ползунка пропорционально контенту
+                          const thumbHeight = (el.clientHeight / el.scrollHeight) * 100;
+                          thumbElement.style.height = `${thumbHeight}%`;
+                        }
+                      }
+                    }}
+                  >
                     <img
                       src={currentScreen.url}
                       alt={`${appName} ${screenType.toLowerCase()}`}
                       className="w-full h-auto object-cover"
                       crossOrigin="anonymous"
+                      onLoad={(e) => {
+                        // Обновляем размер скролла после загрузки изображения
+                        const container = (e.target as HTMLElement).parentElement;
+                        if (container) {
+                          const hasScroll = container.scrollHeight > container.clientHeight;
+                          const thumbElement = container.parentElement?.querySelector('.custom-scrollbar-thumb') as HTMLElement;
+                          const trackElement = container.parentElement?.querySelector('.custom-scrollbar-track') as HTMLElement;
+                          
+                          if (thumbElement && trackElement) {
+                            trackElement.style.display = hasScroll ? 'block' : 'none';
+                            const thumbHeight = (container.clientHeight / container.scrollHeight) * 100;
+                            thumbElement.style.height = `${thumbHeight}%`;
+                          }
+                        }
+                      }}
                     />
+                  </div>
+                  
+                  {/* Custom scrollbar */}
+                  <div className="custom-scrollbar-track absolute top-0 right-0 w-[6px] h-full bg-transparent rounded-full hidden">
+                    <div 
+                      className="custom-scrollbar-thumb absolute w-full bg-black/60 rounded-full opacity-100"
+                      style={{
+                        top: '0%',
+                        transition: 'top 0.05s'
+                      }}
+                    />
+                  </div>
                 </div>
               </div>
             </div>
