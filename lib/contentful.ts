@@ -132,7 +132,8 @@ export async function getAppById(appId: string): Promise<App | null> {
           }
         : undefined,
       screens: screens,
-      flowTypes: uniqueFlowTypes
+      flowTypes: uniqueFlowTypes,
+      date_updated: fields.dateUpdated || null
     };
 
     return result;

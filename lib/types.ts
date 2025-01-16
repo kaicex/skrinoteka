@@ -25,4 +25,5 @@ export interface App {
   flowTypes?: Array<{
     name: string;
   }>;
+  date_updated?: string;
 }

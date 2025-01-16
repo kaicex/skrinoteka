@@ -9,6 +9,7 @@ import { AppTabs } from './components/AppTabs';
 import { TabContent } from './components/TabContent';
 import { FlowTypeSelect } from './components/FlowTypeSelect';
 import { pluralizeScreens } from '@/lib/utils/pluralize';
+import { formatDate } from '@/lib/utils/date';
 
 interface AppPageProps {
   params: {
@@ -163,6 +164,14 @@ export default async function AppPage({ params, searchParams }: AppPageProps) {
                   <div className="text-xs text-zinc-500">Платформы</div>
                   <div className="text-sm">{platforms.join(", ")}</div>
                 </div>
+
+                {/* Date Updated */}
+                {app.date_updated && (
+                  <div>
+                    <div className="text-xs text-zinc-500">Обновлен</div>
+                    <div className="text-sm">{formatDate(app.date_updated)}</div>
+                  </div>
+                )}
 
                 {/* Flow Types */}
                 {/* {app.flowTypes && app.flowTypes.length > 0 && (
