@@ -249,7 +249,7 @@ export function FlowModal({
     
     <Dialog open={isOpen} onOpenChange={onClose} >
       <DialogContent 
-        className="max-w-[calc(100vw-1px)] max-h-[100vh] bg-white rounded-xl border overflow-hidden p-0"
+        className="max-w-[calc(100vw-1px)] max-h-[100vh] rounded-xl  overflow-hidden p-0 bg-white"
       >
         <DialogTitle className="sr-only">
           {`${appName} ${flowType} Флоу`}
@@ -257,10 +257,10 @@ export function FlowModal({
         <DialogDescription className="sr-only">
           {`Просмотр флоу ${flowType} из ${appName}`}
         </DialogDescription>
-        <div className="h-full flex flex-col">
+        <div className="h-full flex flex-col ">
           {/* Top panel */}
           <div 
-            className="h-12 shrink-0 p-4 flex justify-end items-center bg-white"
+            className="h-12 shrink-0 p-4 flex justify-end items-center"
           >
             <button
               onClick={onClose}
@@ -273,8 +273,9 @@ export function FlowModal({
 
           {/* Main content */}
           <div 
-            className="py-4 flex-1 flex items-center justify-center relative overflow-hidden [&::-webkit-scrollbar]:hidden"
+            className="flex-1 flex items-center justify-center relative overflow-hidden [&::-webkit-scrollbar]:hidden"
           >
+
             {showLeftArrow && (
               <button
                 onClick={() => handleScroll('left')}
@@ -284,9 +285,11 @@ export function FlowModal({
                 <ChevronLeft className="w-6 h-6 text-zinc-800" />
               </button>
             )}
-            
+
+
+            {/* Wrapper for all screens that may have more that one browser screen width */}
             <div 
-              className="h-full max-h-[64svh] md:max-h-[80svh] overflow-x-auto flex items-center [&::-webkit-scrollbar]:hidden"
+              className="h-full overflow-x-auto flex items-center [&::-webkit-scrollbar]:hidden gap-4 pl-5 after:content-[''] after:w-1 after:flex-shrink-0"
               ref={scrollContainerRef}
               style={{ 
                 scrollbarWidth: 'none',
@@ -295,38 +298,45 @@ export function FlowModal({
                 scrollBehavior: 'smooth'
               }}
             >
-              <div className={`flex gap-4 pl-5 after:content-[''] after:w-1 after:flex-shrink-0 ${platform === 'desktop' ? '' : ''}`}>
-                {screens?.map((screen, idx) => (
+              {screens?.map((screen, idx) => (
+
+
+                      /* Screen */
                   <div 
                     key={`${modalId.current}-screen-${idx}`}
-                    className="flex-shrink-0 h-full max-h-[64svh] md:max-h-[80svh] flex items-center group"
+                    className={`flex-shrink-0 max-h-[64svh] md:max-h-[70svh] ${platform === 'desktop' ? 'aspect-video' : 'aspect-[390/844]'} rounded-2xl outline outline-1 outline-zinc-200 overflow-hidden box-border relative group bg-zinc-200`}
                   >
-                    <div 
-                      className={`h-full max-h-[64svh] md:max-h-[80svh] flex items-center ${platform === 'desktop' ? 'aspect-video' : 'aspect-[390/844]'} rounded-2xl border border-zinc-200 overflow-hidden box-border relative`}
-                    >
-                      <div className="w-full h-full overflow-y-auto relative [scrollbar-width:24px] [scrollbar-color:rgb(0_0_0)_transparent] [&::-webkit-scrollbar]:w-[24px] [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-black [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:border-[8px] [&::-webkit-scrollbar-thumb]:border-solid [&::-webkit-scrollbar-thumb]:border-transparent [&::-webkit-scrollbar-thumb]:bg-clip-padding">
-                        <img 
-                          src={screen.url} 
-                          alt={`${appName} screen ${idx + 1}`}
-                          className="w-full object-cover"
-                          loading="lazy"
-                        />
-                      </div>
-                      <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-black/30 opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none hidden md:block" />
+
+                    {/* Image */}
+                    <div className="w-full h-full hover:overflow-y-auto [&::-webkit-scrollbar]:hidden">
+                      <img 
+                        src={screen.url} 
+                        alt={`${appName} screen ${idx + 1}`}
+                        className="w-full object-cover"
+                        loading="lazy"
+                      />
+                    </div>
+
+                    {/* Overlay with button */}
+                    <div className="absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-black/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none hidden md:block">
                       <button 
                         onClick={(e) => {
                           e.stopPropagation();
                           handleDownloadScreen(screen.url, idx);
                         }}
-                        className="absolute bottom-3 right-3 flex items-center gap-2 hover:bg-zinc-200 transition-colors cursor-pointer rounded-full px-3 py-1.5 bg-zinc-100 opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-10 hidden md:flex"
+                        className="absolute bottom-3 right-3 flex items-center gap-2 hover:bg-zinc-200 transition-colors cursor-pointer rounded-full px-3 py-1.5 bg-zinc-100 pointer-events-auto"
                         aria-label="Download screen"
                       >
                         <span className="text-zinc-800 text-sm">Скачать экран</span>
                       </button>
+
                     </div>
+
+
+
+                    
                   </div>
                 ))}
-              </div>
             </div>
 
             {showRightArrow && (
@@ -338,10 +348,11 @@ export function FlowModal({
                 <ChevronRight className="w-6 h-6 text-zinc-800" />
               </button>
             )}
+
           </div>
 
           {/* Bottom panel */}
-          <div className="shrink-0 flex flex-col md:flex-row items-center justify-between p-4 gap-4 bg-white">
+          <div className="shrink-0 flex flex-col md:flex-row items-center justify-between p-4 gap-4 ">
             <div className="flex flex-col md:flex-row items-center gap-2">
               <div className="flex items-center gap-2">
                 <span className="text-zinc-800 text-sm font-medium">{appName}</span>
