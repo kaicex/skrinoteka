@@ -67,9 +67,9 @@ export async function getApps(): Promise<App[]> {
         if (a.order !== undefined && b.order !== undefined) {
           return a.order - b.order;
         }
-        // Если order есть только у одного, он идет первым
-        if (a.order !== undefined) return -1;
-        if (b.order !== undefined) return 1;
+        // Если order есть только у одного, он идет в конец
+        if (a.order !== undefined) return 1;
+        if (b.order !== undefined) return -1;
         // Если order нет у обоих, сортируем по дате создания (новые в начале)
         return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
       });
@@ -147,9 +147,9 @@ export async function getAppById(appId: string): Promise<App | null> {
         if (a.order !== undefined && b.order !== undefined) {
           return a.order - b.order;
         }
-        // Если order есть только у одного, он идет первым
-        if (a.order !== undefined) return -1;
-        if (b.order !== undefined) return 1;
+        // Если order есть только у одного, он идет в конец
+        if (a.order !== undefined) return 1;
+        if (b.order !== undefined) return -1;
         // Если order нет у обоих, сортируем по дате создания (новые в начале)
         return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
       });

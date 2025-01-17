@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useCallback, useMemo } from "react"
+import { useState, useCallback, useMemo, useEffect } from "react"
 import { FlowModal } from "./FlowModal"
 import { ChevronRight } from "lucide-react"
 import { useSearchParams, useRouter, usePathname } from 'next/navigation'
@@ -17,6 +17,8 @@ interface Screen {
   flowType?: {
     name: string
   }
+  order: number
+  createdAt: string
 }
 
 interface DesktopFlowsViewProps {
@@ -56,7 +58,7 @@ const DesktopFlowsView = ({
   selectedFlowType
 }: DesktopFlowsViewProps) => {
   const [selectedFlow, setSelectedFlow] = useState<{
-    screens: { url: string; id: string }[]
+    screens: { url: string; id: string; order: number; createdAt: string }[]
     type: string
   } | null>(null)
   const [currentIndex, setCurrentIndex] = useState(0)
@@ -99,16 +101,18 @@ const DesktopFlowsView = ({
     updateURL(null, null)
   }, [updateURL])
 
-  const handleFlowClick = useCallback((flowType: string, flowScreens: Screen[], index: number = 0) => {
-    setSelectedFlow({
+  const handleFlowClick = useCallback((type: string, flowScreens: Screen[], index: number) => {
+    setSelectedFlow({ 
+      type, 
       screens: flowScreens.map(s => ({ 
         url: s.image.url, 
-        id: s.id 
-      })),
-      type: flowType
+        id: s.id,
+        order: s.order,
+        createdAt: s.createdAt
+      })) 
     })
     setCurrentIndex(index)
-    updateURL(flowType, index)
+    updateURL(type, index)
   }, [updateURL])
 
   // Фильтруем флоу по выбранному типу
@@ -133,6 +137,30 @@ const DesktopFlowsView = ({
       };
     }).filter(group => group.screens.length > 0);
   }, [filteredFlows, screens]);
+
+  useEffect(() => {
+    const flow = searchParams.get('flow')
+    const screen = searchParams.get('screen')
+    
+    if (flow) {
+      const flowScreens = screens.filter(s => s.flowType?.name === flow)
+      if (flowScreens.length > 0) {
+        const index = screen ? parseInt(screen) - 1 : 0
+        if (index >= 0 && index < flowScreens.length) {
+          setSelectedFlow({
+            type: flow,
+            screens: flowScreens.map((s, i) => ({ 
+              url: s.image.url, 
+              id: s.id,
+              order: s.order,
+              createdAt: s.createdAt
+            }))
+          })
+          setCurrentIndex(index)
+        }
+      }
+    }
+  }, [searchParams, screens])
 
   if (!flowTypes || flowTypes.length === 0 || !screens || screens.length === 0) {
     return (
