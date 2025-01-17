@@ -17,6 +17,7 @@ interface Screen {
   flowType?: {
     name: string
   }
+  order?: number
 }
 
 interface FlowsViewProps {
@@ -35,7 +36,7 @@ const FlowsView = ({
   selectedFlowType
 }: FlowsViewProps) => {
   const [selectedFlow, setSelectedFlow] = useState<{
-    screens: { url: string; id: string }[]
+    screens: { url: string; id: string; order?: number }[]
     type: string
   } | null>(null)
   const [currentIndex, setCurrentIndex] = useState(0)
@@ -56,7 +57,8 @@ const FlowsView = ({
             type: flow,
             screens: flowScreens.map((s, i) => ({ 
               url: s.image.url, 
-              id: s.id 
+              id: s.id,
+              order: s.order
             }))
           })
           setCurrentIndex(index)
@@ -82,7 +84,8 @@ const FlowsView = ({
       type, 
       screens: flowScreens.map(s => ({ 
         url: s.image.url, 
-        id: s.id 
+        id: s.id,
+        order: s.order 
       })) 
     })
     setCurrentIndex(index)
@@ -128,9 +131,17 @@ const FlowsView = ({
         return matches;
       });
       
+      // Сортируем экраны по полю order
+      const sortedScreens = [...filteredScreens].sort((a, b) => {
+        // Если order не определен, помещаем в конец
+        if (a.order === undefined) return 1;
+        if (b.order === undefined) return -1;
+        return a.order - b.order;
+      });
+      
       return {
         type: flowType.name,
-        screens: filteredScreens
+        screens: sortedScreens
       };
     });
     

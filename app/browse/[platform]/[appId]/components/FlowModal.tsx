@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useRef, useEffect } from 'react'
+import { useState, useRef, useEffect, useMemo } from 'react'
 import {
   Dialog,
   DialogContent,
@@ -19,6 +19,7 @@ interface FlowModalProps {
   screens: {
     url: string
     id: string
+    order?: number
   }[]
   currentIndex: number
   onNext: () => void
@@ -117,7 +118,7 @@ function DownloadButton({ screens, appName, flowType }: { screens: { url: string
 export function FlowModal({ 
   isOpen, 
   onClose, 
-  screens, 
+  screens: initialScreens, 
   currentIndex,
   onNext,
   onPrev,
@@ -129,6 +130,15 @@ export function FlowModal({
   const [showLeftArrow, setShowLeftArrow] = useState(false)
   const [showRightArrow, setShowRightArrow] = useState(false)
   const modalId = useRef(`flow-${flowType}-${Date.now()}`)
+
+  // Сортируем экраны по полю order
+  const screens = useMemo(() => {
+    return [...initialScreens].sort((a, b) => {
+      if (a.order === undefined) return 1;
+      if (b.order === undefined) return -1;
+      return a.order - b.order;
+    });
+  }, [initialScreens]);
 
   // Check and update arrows visibility
   const updateArrowsVisibility = () => {

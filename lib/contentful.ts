@@ -51,7 +51,8 @@ export async function getApps(): Promise<App[]> {
         flowType: screen.fields.flowType ? {
           name: screen.fields.flowType.fields?.name || ''
         } : undefined,
-        thumbnail: screen.fields.thumbnail || false
+        thumbnail: screen.fields.thumbnail || false,
+        order: screen.fields.order || undefined
       };
       
       screensByApp.get(appId)?.push(screenData);
@@ -118,7 +119,8 @@ export async function getAppById(appId: string): Promise<App | null> {
         })) || [],
         flowType: screen.fields.flowType ? {
           name: screen.fields.flowType.fields?.name || ''
-        } : undefined
+        } : undefined,
+        order: screen.fields.order || undefined
       }));
 
     const result = {
