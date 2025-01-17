@@ -68,10 +68,10 @@ export async function getApps(): Promise<App[]> {
           return a.order - b.order;
         }
         // Если order есть только у одного, он идет в конец
-        if (a.order !== undefined) return 1;
-        if (b.order !== undefined) return -1;
-        // Если order нет у обоих, сортируем по дате создания (новые в начале)
-        return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+        if (a.order !== undefined) return -1;
+        if (b.order !== undefined) return 1;
+        // Если order нет у обоих, сортируем по дате создания (старые в начале)
+        return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
       });
       screensByApp.set(appId, sortedScreens);
     });
@@ -148,10 +148,10 @@ export async function getAppById(appId: string): Promise<App | null> {
           return a.order - b.order;
         }
         // Если order есть только у одного, он идет в конец
-        if (a.order !== undefined) return 1;
-        if (b.order !== undefined) return -1;
-        // Если order нет у обоих, сортируем по дате создания (новые в начале)
-        return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+        if (a.order !== undefined) return -1;
+        if (b.order !== undefined) return 1;
+        // Если order нет у обоих, сортируем по дате создания (старые в начале)
+        return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
       });
 
     const result = {
