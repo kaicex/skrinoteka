@@ -31,6 +31,7 @@ export async function getApps(): Promise<App[]> {
     // Проверяем наличие url при маппинге
     const screensByApp = new Map<string, any[]>();
     
+    // Сначала собираем все экраны для каждого приложения
     screensResponse.items.forEach((screen: any) => {
       const appId = screen.fields.app?.sys?.id;
       if (!appId || !screen.fields.image?.fields?.file?.url) return;
@@ -52,10 +53,27 @@ export async function getApps(): Promise<App[]> {
           name: screen.fields.flowType.fields?.name || ''
         } : undefined,
         thumbnail: screen.fields.thumbnail || false,
-        order: screen.fields.order || undefined
+        order: screen.fields.order || undefined,
+        createdAt: screen.sys.createdAt
       };
       
       screensByApp.get(appId)?.push(screenData);
+    });
+
+    // Сортируем экраны для каждого приложения
+    screensByApp.forEach((screens, appId) => {
+      const sortedScreens = screens.sort((a, b) => {
+        // Если у обоих есть order, сортируем по нему
+        if (a.order !== undefined && b.order !== undefined) {
+          return a.order - b.order;
+        }
+        // Если order есть только у одного, он идет первым
+        if (a.order !== undefined) return -1;
+        if (b.order !== undefined) return 1;
+        // Если order нет у обоих, сортируем по дате создания (новые в начале)
+        return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+      });
+      screensByApp.set(appId, sortedScreens);
     });
 
     return appsResponse.items.map((item: any) => {
@@ -106,8 +124,9 @@ export async function getAppById(appId: string): Promise<App | null> {
         .filter(Boolean)
     )).map(name => ({ name }));
     
+    // Получаем и сортируем экраны
     const screens = screensResponse.items
-      .filter((screen: any) => screen.fields.image?.fields?.file?.url)  // Фильтруем скрины без изображений
+      .filter((screen: any) => screen.fields.image?.fields?.file?.url)
       .map((screen: any) => ({
         id: screen.sys.id,
         name: screen.fields.title || '',
@@ -120,8 +139,20 @@ export async function getAppById(appId: string): Promise<App | null> {
         flowType: screen.fields.flowType ? {
           name: screen.fields.flowType.fields?.name || ''
         } : undefined,
-        order: screen.fields.order || undefined
-      }));
+        order: screen.fields.order || undefined,
+        createdAt: screen.sys.createdAt
+      }))
+      .sort((a, b) => {
+        // Если у обоих есть order, сортируем по нему
+        if (a.order !== undefined && b.order !== undefined) {
+          return a.order - b.order;
+        }
+        // Если order есть только у одного, он идет первым
+        if (a.order !== undefined) return -1;
+        if (b.order !== undefined) return 1;
+        // Если order нет у обоих, сортируем по дате создания (новые в начале)
+        return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+      });
 
     const result = {
       id: appId,

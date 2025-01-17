@@ -20,6 +20,7 @@ interface FlowModalProps {
     url: string
     id: string
     order?: number
+    createdAt: string
   }[]
   currentIndex: number
   onNext: () => void
@@ -131,14 +132,8 @@ export function FlowModal({
   const [showRightArrow, setShowRightArrow] = useState(false)
   const modalId = useRef(`flow-${flowType}-${Date.now()}`)
 
-  // Сортируем экраны по полю order
-  const screens = useMemo(() => {
-    return [...initialScreens].sort((a, b) => {
-      if (a.order === undefined) return 1;
-      if (b.order === undefined) return -1;
-      return a.order - b.order;
-    });
-  }, [initialScreens]);
+  // Используем initialScreens напрямую, так как они уже отсортированы
+  const screens = initialScreens;
 
   // Check and update arrows visibility
   const updateArrowsVisibility = () => {
