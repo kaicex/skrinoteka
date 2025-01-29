@@ -30,12 +30,11 @@ interface App {
 }
 
 export default async function AppPage({ params, searchParams }: AppPageProps) {
+  console.log('Fetching app with ID:', params.appId);
   const app = await getAppById(params.appId);
   
-  const currentTab = searchParams.tab || 'flows';
-  const selectedFlowType = searchParams.flowType || 'Все флоу';
-
   if (!app) {
+    console.error('App not found:', params.appId);
     notFound();
   }
 
@@ -69,6 +68,11 @@ export default async function AppPage({ params, searchParams }: AppPageProps) {
   const filteredFlowTypes = app.flowTypes?.filter(flowType =>
     filteredScreens.some(screen => screen.flowType?.name === flowType.name)
   ) || [];
+
+  // Устанавливаем вкладку по умолчанию в зависимости от наличия флоу
+  const hasFlows = filteredFlowTypes.length > 0;
+  const currentTab = searchParams.tab || (hasFlows ? 'flows' : 'screens');
+  const selectedFlowType = searchParams.flowType || 'Все флоу';
 
   // Обновляем app с отфильтрованными данными
   app.screens = filteredScreens;

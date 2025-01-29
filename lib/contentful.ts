@@ -99,37 +99,35 @@ export async function getApps(): Promise<App[]> {
   }
 }
 
-export async function getAppById(appId: string): Promise<App | null> {
+export async function getAppById(appId: string | undefined): Promise<App | null> {
+  if (!appId || typeof appId !== 'string') {
+    console.error('Error fetching app: invalid appId:', appId);
+    return null;
+  }
+
   try {
-    const appResponse = await client.getEntry(appId, {
-      include: 2
-    });
+    const [appResponse, screensResponse] = await Promise.all([
+      client.getEntry(appId),
+      client.getEntries({
+        content_type: 'screen',
+        'fields.app.sys.id': appId,
+        include: 2,
+      })
+    ]);
 
-    const screensResponse = await client.getEntries({
-      content_type: 'screen',
-      'fields.app.sys.id': appId,
-      include: 2,
-    });
-
-    if (!appResponse) {
+    if (!appResponse?.fields) {
+      console.error('App response is invalid:', appResponse);
       return null;
     }
 
     const fields = appResponse.fields as any;
     
-    // Get unique flow types from screens
-    const uniqueFlowTypes = Array.from(new Set(
-      screensResponse.items
-        .map((screen: any) => screen.fields.flowType?.fields?.name)
-        .filter(Boolean)
-    )).map(name => ({ name }));
-    
-    // Получаем и сортируем экраны
+    // Фильтруем и сортируем экраны
     const screens = screensResponse.items
-      .filter((screen: any) => screen.fields.image?.fields?.file?.url)
+      .filter((screen: any) => screen.fields?.image?.fields?.file?.url)
       .map((screen: any) => ({
         id: screen.sys.id,
-        name: screen.fields.title || '',
+        title: screen.fields.title,
         image: {
           url: `https:${screen.fields.image.fields.file.url}`
         },
@@ -139,22 +137,27 @@ export async function getAppById(appId: string): Promise<App | null> {
         flowType: screen.fields.flowType ? {
           name: screen.fields.flowType.fields?.name || ''
         } : undefined,
+        thumbnail: screen.fields.thumbnail || false,
         order: screen.fields.order || undefined,
         createdAt: screen.sys.createdAt
       }))
       .sort((a, b) => {
-        // Если у обоих есть order, сортируем по нему
         if (a.order !== undefined && b.order !== undefined) {
           return a.order - b.order;
         }
-        // Если order есть только у одного, он идет в конец
         if (a.order !== undefined) return -1;
         if (b.order !== undefined) return 1;
-        // Если order нет у обоих, сортируем по дате создания (старые в начале)
         return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
       });
 
-    const result = {
+    // Получаем уникальные типы флоу из экранов
+    const uniqueFlowTypes = Array.from(new Set(
+      screens
+        .map(screen => screen.flowType?.name)
+        .filter(Boolean)
+    )).map(name => ({ name }));
+
+    return {
       id: appId,
       name: fields.name || '',
       description: fields.description || '',
@@ -164,13 +167,10 @@ export async function getAppById(appId: string): Promise<App | null> {
             url: `https:${fields.app_logo.fields.file.url}`
           }
         : undefined,
-      screens: screens,
+      screens,
       flowTypes: uniqueFlowTypes,
       date_updated: fields.dateUpdated || null
     };
-
-    return result;
-
   } catch (error) {
     console.error('Error fetching app:', error);
     return null;

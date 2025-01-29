@@ -82,13 +82,13 @@ export function TabContent({
 
     if (currentTab === 'screens') {
       return {
-        screens: filterScreensByPlatform(initialScreens).slice(0, 20),
+        screens: filterScreensByPlatform(initialScreens),
         appName
       }
     } else {
       return {
         flowTypes: initialFlowTypes,
-        screens: filterScreensByPlatform(initialFlowScreens).slice(0, 20),
+        screens: filterScreensByPlatform(initialFlowScreens),
         appName
       }
     }
@@ -101,15 +101,19 @@ export function TabContent({
         // Подготавливаем следующие экраны
         const nextScreens = initialScreens.slice(20)
         nextScreens.slice(0, 4).forEach(screen => {
-          const img = new Image()
-          img.src = screen.url
+          if (screen?.url && typeof screen.url === 'string') {
+            const img = new Image()
+            img.src = screen.url
+          }
         })
       } else if (initialFlowScreens.length > 20) {
         // Подготавливаем следующие flow экраны
         const nextFlowScreens = initialFlowScreens.slice(20)
         nextFlowScreens.slice(0, 4).forEach(screen => {
-          const img = new Image()
-          img.src = screen.url
+          if (screen?.url && typeof screen.url === 'string') {
+            const img = new Image()
+            img.src = screen.url
+          }
         })
       }
     }, 1000)
