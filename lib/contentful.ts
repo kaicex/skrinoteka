@@ -121,7 +121,7 @@ export async function getAppById(appId: string | undefined): Promise<App | null>
   }
 
   try {
-    console.log('Fetching app data for ID:', appId);
+
     
     const [appResponse, screensResponse, videosResponse] = await Promise.all([
       client.getEntry(appId),
@@ -137,21 +137,6 @@ export async function getAppById(appId: string | undefined): Promise<App | null>
       })
     ]);
 
-    console.log('Contentful responses:', {
-      appFields: appResponse.fields,
-      videosTotal: videosResponse.total,
-      videosItems: videosResponse.items.length,
-      videosResponse: JSON.stringify(videosResponse, null, 2)
-    });
-
-    // Детально логируем каждый элемент videosResponse
-    videosResponse.items.forEach((item: any, index: number) => {
-      console.log(`Video item ${index}:`, {
-        sys: item.sys,
-        fields: item.fields,
-        rawItem: JSON.stringify(item, null, 2)
-      });
-    });
 
     if (!appResponse?.fields) {
       console.error('App response is invalid:', appResponse);
@@ -159,11 +144,6 @@ export async function getAppById(appId: string | undefined): Promise<App | null>
     }
 
     const fields = appResponse.fields as any;
-    console.log('Raw Contentful response:', {
-      fields,
-      videos: fields.videos,
-      videosResponse
-    });
     
     // Фильтруем и сортируем экраны
     const screens = screensResponse.items
@@ -204,20 +184,12 @@ export async function getAppById(appId: string | undefined): Promise<App | null>
 
     // Получаем видео
     const videos = videosResponse.items.map((videoEntry: any) => {
-      console.log('Video entry fields:', {
-        fields: videoEntry.fields,
-        videoField: videoEntry.fields.video,
-        videoUrl: videoEntry.fields.video?.fields?.file?.url
-      });
-
       // Получаем URL видео из поля video
       let videoUrl = '';
       
       if (videoEntry.fields.video?.fields?.file?.url) {
         videoUrl = `https:${videoEntry.fields.video.fields.file.url}`;
       }
-
-      console.log('Determined video URL:', videoUrl);
 
       return {
         id: videoEntry.sys.id,
@@ -229,22 +201,23 @@ export async function getAppById(appId: string | undefined): Promise<App | null>
       };
     }) || [];
 
-    console.log('Final processed videos:', JSON.stringify(videos, null, 2));
+
 
     return {
       id: appId,
       name: fields.name || '',
       description: fields.description || '',
       category: fields.category?.fields?.name || '',
-      logo: fields.app_logo?.fields?.file 
+      logo: fields.app_logo?.fields?.file?.url
         ? {
-            url: `https:${fields.app_logo.fields.file.url}`
+            url: `https:${fields.app_logo.fields.file.url}`,
           }
         : undefined,
       screens,
       videos,
       flowTypes: uniqueFlowTypes,
-      date_updated: fields.dateUpdated || null
+      platforms: fields.platforms || [],
+      date_updated: fields.dateUpdated || '',
     };
   } catch (error) {
     console.error('Error fetching app:', error);

@@ -72,11 +72,12 @@ export function AppSidebar({
                   />
                 </div>
               )}
-              <div>
+              <div className="flex flex-col gap-2">
                 <h1 className="text-lg font-semibold">{app.name}</h1>
-                <div className="text-sm text-zinc-500">
+                <p className="text-sm text-zinc-500">
                   {app.category}
-                </div>
+                  {app.platforms && app.platforms.length > 0 && ` · ${app.platforms.join(', ')}`}
+                </p>
               </div>
             </div>
 

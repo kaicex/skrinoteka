@@ -22,6 +22,7 @@ export interface App {
   name: string;
   category: string;
   description?: string;
+  platforms?: string[];
   screens: Screen[];
   videos?: Array<{
     id: string;

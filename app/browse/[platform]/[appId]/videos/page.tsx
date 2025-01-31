@@ -17,9 +17,6 @@ export default function VideoPage({ params }: VideoPageProps) {
     return null
   }
 
-  console.log('App data:', app);
-  console.log('Videos:', app.videos);
-
   return (
     <div className="space-y-8">
       <h2 className="text-4xl font-semibold text-zinc-900">Видео</h2>
