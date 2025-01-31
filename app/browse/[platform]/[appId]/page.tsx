@@ -2,16 +2,21 @@
 
 import { redirect } from 'next/navigation';
 import { useDesktopApps, useMobileApps } from '@/hooks/use-apps';
-import { useEffect } from 'react';
+import { useEffect, Suspense } from 'react';
+import { Loading } from '@/components/ui/loading';
 
 export default function Page({
   params
 }: {
   params: { platform: string; appId: string }
 }) {
-  const { data: desktopApps = [] } = useDesktopApps();
-  const { data: mobileApps = [] } = useMobileApps();
+  const { data: desktopApps = [], isLoading: isDesktopLoading } = useDesktopApps();
+  const { data: mobileApps = [], isLoading: isMobileLoading } = useMobileApps();
   const baseUrl = `/browse/${params.platform}/${params.appId}`;
+  const isLoading = isDesktopLoading || isMobileLoading;
+  const app = params.platform === 'desktop'
+    ? desktopApps.find(app => app.id === params.appId)
+    : mobileApps.find(app => app.id === params.appId);
 
   useEffect(() => {
     // Проверяем существование приложения для соответствующей платформы
@@ -28,5 +33,13 @@ export default function Page({
     }
   }, [params.platform, params.appId, desktopApps, mobileApps, baseUrl]);
 
-  return null; // Компонент всегда будет перенаправлять
+  if (isLoading || !app) {
+    return <Loading />;
+  }
+
+  return (
+    <Suspense fallback={<Loading />}>
+      {null} // Компонент всегда будет перенаправлять
+    </Suspense>
+  );
 }

@@ -5,22 +5,15 @@ import dynamic from 'next/dynamic'
 import { useParams, useSearchParams } from 'next/navigation'
 import { useApp } from '@/hooks/use-apps'
 import { Screen } from '@/lib/types'
+import { Loading } from '@/components/ui/loading'
 
 const FlowsView = dynamic(() => import('./components/FlowsView'), {
-  loading: () => (
-    <div className="w-full min-h-[calc(100vh-200px)] flex items-center justify-center">
-      <div className="text-zinc-400 text-lg">Loading flows...</div>
-    </div>
-  ),
+  loading: () => <Loading message="Загрузка флоу..." />,
   ssr: false
 })
 
 const DesktopFlowsView = dynamic(() => import('./components/DesktopFlowsView'), {
-  loading: () => (
-    <div className="w-full min-h-[calc(100vh-200px)] flex items-center justify-center">
-      <div className="text-zinc-400 text-lg">Loading flows...</div>
-    </div>
-  ),
+  loading: () => <Loading message="Загрузка флоу..." />,
   ssr: false
 })
 
@@ -33,7 +26,7 @@ export default function FlowsPage() {
   const selectedFlowType = searchParams.get('flowType') || 'Все флоу'
 
   if (isLoading || !app) {
-    return <div>Loading...</div>
+    return <Loading />;
   }
 
   // Фильтруем экраны в зависимости от платформы
@@ -48,7 +41,7 @@ export default function FlowsPage() {
 
   if (isDesktop) {
     return (
-      <Suspense fallback={<div>Loading...</div>}>
+      <Suspense fallback={<Loading message="Загрузка флоу..." />}>
         <DesktopFlowsView
           screens={filteredScreens}
           flowTypes={app.flowTypes || []}
@@ -61,7 +54,7 @@ export default function FlowsPage() {
   }
 
   return (
-    <Suspense fallback={<div>Loading...</div>}>
+    <Suspense fallback={<Loading message="Загрузка флоу..." />}>
       <FlowsView
         screens={filteredScreens}
         flowTypes={app.flowTypes || []}

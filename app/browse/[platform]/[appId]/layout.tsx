@@ -8,6 +8,7 @@ import { useSearchParams } from 'next/navigation'
 import { useMemo, useEffect } from 'react'
 import { Container } from '@/components/ui/container'
 import { useQueryClient } from '@tanstack/react-query'
+import { Loading } from '@/components/ui/loading'
 
 export default function AppLayout({
   children,
@@ -68,11 +69,11 @@ export default function AppLayout({
   }, [app, params.platform])
 
   if (isLoading) {
-    return <div>Loading...</div>
+    return <Loading />;
   }
 
   if (!app) {
-    return <div>App not found</div>
+    return <Loading message="Приложение не найдено" />;
   }
 
   return (

@@ -43,8 +43,8 @@ export function AppSidebar({
   const platformScreensCount = filteredScreens.length;
   
   return (
-    <aside className="w-full md:w-72 md:mt-8 flex-shrink-0 sticky top-8">
-      <div>
+    <aside className="w-full md:w-72 md:sticky md:top-8 flex-shrink-0">
+      <div className="pt-4 md:pt-0">
         <div className="mb-8">
           <Link
             href={`/browse/${params.platform}`}
