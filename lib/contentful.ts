@@ -156,6 +156,7 @@ export async function getAppById(appId: string | undefined): Promise<App | null>
           url: `https:${screen.fields.image.fields.file.url}`
         },
         isDesktop: screen.fields.isDesktop || false,
+        duplicatedScreen: screen.fields.duplicatedScreen || false,
         platform: screen.fields.platform?.map((p: any) => ({
           name: p.fields?.name || ''
         })) || [],

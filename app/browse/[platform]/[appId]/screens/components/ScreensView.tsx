@@ -14,6 +14,7 @@ interface Screen {
     url: string;
   };
   isDesktop?: boolean;
+  duplicatedScreen?: boolean;
 }
 
 interface ScreensViewProps {
@@ -22,8 +23,11 @@ interface ScreensViewProps {
 }
 
 const ScreensView = ({ screens, appName }: ScreensViewProps) => {
+  // Фильтруем экраны, исключая те, которые помечены как duplicatedScreen
+  const filteredScreens = screens.filter(screen => !screen.duplicatedScreen);
+  
   const [selectedScreenIndex, setSelectedScreenIndex] = useState<number | null>(null);
-  const [loadingStates, setLoadingStates] = useState<boolean[]>(new Array(screens.length).fill(true));
+  const [loadingStates, setLoadingStates] = useState<boolean[]>(new Array(filteredScreens.length).fill(true));
   const searchParams = useSearchParams();
   const router = useRouter();
   const pathname = usePathname();
@@ -39,7 +43,7 @@ const ScreensView = ({ screens, appName }: ScreensViewProps) => {
     if (screenParam) {
       try {
         const index = parseInt(screenParam) - 1;
-        if (index >= 0 && index < screens.length) {
+        if (index >= 0 && index < filteredScreens.length) {
           setSelectedScreenIndex(index);
         } else {
           // Invalid index, remove screen parameter
@@ -54,11 +58,11 @@ const ScreensView = ({ screens, appName }: ScreensViewProps) => {
     } else {
       setSelectedScreenIndex(null);
     }
-  }, [searchParams, screens.length, pathname, router]);
+  }, [searchParams, filteredScreens.length, pathname, router]);
 
   const updateURL = (index: number | null) => {
     const params = new URLSearchParams(searchParams.toString());
-    if (index !== null && index >= 0 && index < screens.length) {
+    if (index !== null && index >= 0 && index < filteredScreens.length) {
       params.set('screen', (index + 1).toString());
     } else {
       params.delete('screen');
@@ -67,7 +71,7 @@ const ScreensView = ({ screens, appName }: ScreensViewProps) => {
   };
 
   const handleNext = () => {
-    if (selectedScreenIndex !== null && selectedScreenIndex < screens.length - 1) {
+    if (selectedScreenIndex !== null && selectedScreenIndex < filteredScreens.length - 1) {
       const newIndex = selectedScreenIndex + 1;
       setSelectedScreenIndex(newIndex);
       updateURL(newIndex);
@@ -83,7 +87,7 @@ const ScreensView = ({ screens, appName }: ScreensViewProps) => {
   };
 
   const handleScreenClick = (index: number) => {
-    if (index >= 0 && index < screens.length) {
+    if (index >= 0 && index < filteredScreens.length) {
       setSelectedScreenIndex(index);
       updateURL(index);
     }
@@ -106,7 +110,7 @@ const ScreensView = ({ screens, appName }: ScreensViewProps) => {
     <div className="grid gap-4">
       <h2 className="text-4xl font-semibold text-zinc-900">Экраны</h2>
       <div className={`grid grid-cols-2 ${isDesktop ? 'lg:grid-cols-3' : 'md:grid-cols-3 lg:grid-cols-4'} gap-4`}>
-        {screens.map((screen, index) => {
+        {filteredScreens.map((screen, index) => {
           if (!screen.image?.url) return null;
           
           return (
@@ -144,7 +148,7 @@ const ScreensView = ({ screens, appName }: ScreensViewProps) => {
         <ScreenModal
           isOpen={true}
           onClose={handleClose}
-          screens={screens.map(s => ({ url: s.image.url, id: s.id }))}
+          screens={filteredScreens.map(s => ({ url: s.image.url, id: s.id }))}
           currentIndex={selectedScreenIndex}
           onNext={handleNext}
           onPrev={handlePrev}
