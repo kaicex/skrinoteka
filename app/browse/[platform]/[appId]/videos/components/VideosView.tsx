@@ -148,7 +148,9 @@ const VideosView = ({ videos, appName }: VideosViewProps) => {
       {filteredVideos.map((video, index) => (
         <div
           key={video.id}
-          ref={el => containerRefs.current[index] = el}
+          ref={(el) => {
+            containerRefs.current[index] = el;
+          }}
           className={`relative rounded-2xl overflow-hidden bg-zinc-100 group ${
             isDesktop ? 'aspect-[16/10]' : 'aspect-[390/844]'
           } ${isFullscreen[index] ? 'fullscreen-container' : ''}`}
@@ -194,7 +196,9 @@ const VideosView = ({ videos, appName }: VideosViewProps) => {
 
           {video.video?.url && !errorStates[index] ? (
             <video
-              ref={el => videoRefs.current[index] = el}
+              ref={(el) => {
+                videoRefs.current[index] = el;
+              }}
               src={video.video.url}
               className={`w-full h-full ${isFullscreen[index] ? 'object-contain' : 'object-cover'}`}
               title={video.title || `${appName} - Видео ${index + 1}`}
