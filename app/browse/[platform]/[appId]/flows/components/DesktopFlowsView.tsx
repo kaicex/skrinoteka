@@ -174,11 +174,11 @@ const DesktopFlowsView = ({
               >
                 <div className="flex items-center gap-2">
                   <div className="flex items-center group">
-                    <h3 className="text-xl font-semibold text-zinc-900">{group.type}</h3>
-                    <ChevronRight className="w-5 h-5 text-zinc-400 ml-1 transition-transform duration-200 ease-in-out group-hover:translate-x-1" />
+                    <h3 className="text-lg font-medium text-zinc-900">{group.type}</h3>
+                    <ChevronRight className="w-5 h-5 text-zinc-400 ml-1 -mb-0.5 transition-transform duration-200 ease-in-out group-hover:translate-x-1" />
                   </div>
-                  <span className="text-zinc-400">•</span>
-                  <span className="text-zinc-500">{pluralizeScreens(group.screens.length)}</span>
+                  <span className="text-zinc-400 -mb-0.5">•</span>
+                  <span className="text-base text-zinc-500">{pluralizeScreens(group.screens.length)}</span>
                 </div>
               </div>
 

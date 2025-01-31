@@ -49,19 +49,19 @@ export function AppSidebar({
   const platformFlowCount = filteredFlowTypes.length;
   
   return (
-    <aside className="w-full md:w-72 flex-shrink-0">
-      <div className="pt-4 md:pt-8 md:sticky md:top-8">
-        <div className="mb-8">
+    <aside className="w-full md:w-64 flex-shrink-0">
+      <div className="md:sticky md:top-0">
+        <div className="pt-4 md:pt-6 mb-6">
           <Link
             href={`/browse/${params.platform}`}
-            className="inline-flex items-center text-sm text-zinc-500 hover:text-zinc-900 mb-6"
+            className="inline-flex items-center text-sm text-zinc-500 hover:text-zinc-900 mb-4"
           >
             <ArrowLeft className="w-4 h-4 mr-2" />
             Назад к приложениям
           </Link>
 
           <div className="mb-4">
-            <div className="hidden md:flex md:flex-col gap-4">
+            <div className="hidden md:flex md:flex-col gap-3">
               {app.logo && (
                 <div className="w-full aspect-square rounded-lg border border-zinc-200 overflow-hidden relative">
                   <Image
@@ -73,7 +73,7 @@ export function AppSidebar({
                 </div>
               )}
               <div>
-                <h1 className="text-xl font-semibold">{app.name}</h1>
+                <h1 className="text-lg font-semibold">{app.name}</h1>
                 <div className="text-sm text-zinc-500">
                   {app.category}
                 </div>
@@ -81,7 +81,7 @@ export function AppSidebar({
             </div>
 
             {/* Мобильная версия */}
-            <div className="flex md:hidden items-center gap-4">
+            <div className="flex md:hidden items-center gap-3">
               {app.logo && (
                 <div className="w-12 aspect-square rounded-lg border border-zinc-200 overflow-hidden relative flex-shrink-0">
                   <Image
@@ -93,7 +93,7 @@ export function AppSidebar({
                 </div>
               )}
               <div>
-                <h1 className="text-xl font-semibold">{app.name}</h1>
+                <h1 className="text-lg font-semibold">{app.name}</h1>
                 <div className="text-sm text-zinc-500">
                   {app.category}
                 </div>
@@ -103,12 +103,12 @@ export function AppSidebar({
 
           {/* Navigation */}
           {hasFlows && (
-            <div className="space-y-4 mb-8">
-              <nav className="flex gap-2 bg-gray-200 p-1 rounded-lg">
+            <div className="space-y-3 mb-6">
+              <nav className="flex gap-1 bg-gray-200 p-1 rounded-lg">
                 <Link
                   href={`${baseUrl}/flows`}
                   className={cn(
-                    "flex-1 px-4 py-2 text-sm text-center rounded-md transition-colors",
+                    "flex-1 px-3 py-1.5 text-sm text-center rounded-md transition-colors",
                     currentTab === 'flows'
                       ? "bg-white text-gray-900 shadow-sm"
                       : "text-gray-600 hover:text-gray-900 hover:bg-gray-100"
@@ -119,7 +119,7 @@ export function AppSidebar({
                 <Link
                   href={`${baseUrl}/screens`}
                   className={cn(
-                    "flex-1 px-4 py-2 text-sm text-center rounded-md transition-colors",
+                    "flex-1 px-3 py-1.5 text-sm text-center rounded-md transition-colors",
                     currentTab === 'screens'
                       ? "bg-white text-gray-900 shadow-sm"
                       : "text-gray-600 hover:text-gray-900 hover:bg-gray-100"
@@ -130,7 +130,7 @@ export function AppSidebar({
               </nav>
 
               {currentTab === 'flows' && (
-                <div className="border-t border-zinc-200 pt-4">
+                <div className="pt-3">
                   <FlowTypeSelect 
                     flowTypes={app.flowTypes || []} 
                     screens={app.screens} 
@@ -141,11 +141,11 @@ export function AppSidebar({
           )}
 
           {app.description && (
-            <p className="text-sm text-zinc-500 mb-8">{app.description}</p>
+            <p className="text-sm text-zinc-500 mb-6">{app.description}</p>
           )}
 
           {/* Статистика */}
-          <div className="space-y-4 text-sm">
+          <div className="space-y-3 text-sm">
             <div>
               <div className="text-zinc-500">Всего экранов</div>
               <div className="font-medium">

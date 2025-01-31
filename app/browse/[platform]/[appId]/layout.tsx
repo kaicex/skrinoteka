@@ -48,7 +48,7 @@ export default function AppLayout({
   const totalScreens = app.screens.length
 
   return (
-    <Container size="xl" className="flex flex-col md:flex-row gap-8">
+    <Container size="xl" className="flex flex-col md:flex-row gap-8 pt-0">
       <AppSidebar
         app={app}
         currentTab={segment}
