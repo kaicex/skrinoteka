@@ -2,10 +2,11 @@
 
 import { useState, useMemo, useCallback, useEffect } from 'react'
 import { useSearchParams, useRouter, usePathname } from 'next/navigation'
-import { LazyImage } from './LazyImage'
+import { LazyImage } from '@/components/LazyImage'
 import { FlowModal } from './FlowModal'
 import { ChevronRight } from "lucide-react"
 import { pluralizeScreens } from '@/lib/utils/pluralize'
+import { FlowTypeSelect } from '../components/FlowTypeSelect'
 
 interface Screen {
   id: string
@@ -152,7 +153,7 @@ const FlowsView = ({
   }
 
   return (
-    <div className="grid gap-4">
+    <div className="space-y-8">
       <h2 className="text-4xl font-semibold text-zinc-900">Флоу</h2>
       <div className="space-y-12">
         {flowGroups.map(group => {

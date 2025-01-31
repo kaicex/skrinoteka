@@ -29,7 +29,11 @@ interface AppCardProps {
   href: string;
 }
 
-export function AppCard({ app, href }: AppCardProps) {
+export function AppCard({ app, href, selectedFlowType }: AppCardProps & { selectedFlowType?: string }) {
+  const linkHref = selectedFlowType && selectedFlowType !== "Все" 
+    ? `${href}/flows?flowType=${encodeURIComponent(selectedFlowType)}`
+    : `${href}/flows`;
+
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [isImageLoading, setIsImageLoading] = useState(true);
   const [isLogoLoading, setIsLogoLoading] = useState(true);
@@ -84,7 +88,10 @@ export function AppCard({ app, href }: AppCardProps) {
   };
 
   return (
-    <Link href={href} className="block">
+    <Link
+      href={linkHref}
+      className="block"
+    >
       <div 
         className="group relative rounded-2xl overflow-hidden bg-white border border-zinc-200 hover:border-zinc-300 transition-colors shadow-sm"
         onMouseLeave={handleMouseLeave}

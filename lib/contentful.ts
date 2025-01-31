@@ -99,6 +99,26 @@ export async function getApps(): Promise<App[]> {
   }
 }
 
+export async function getDesktopApps(): Promise<App[]> {
+  const apps = await getApps();
+  return apps.filter(app => 
+    app.screens.some(screen => 
+      screen.platform?.some(p => p.name.toLowerCase() === 'web')
+    )
+  );
+}
+
+export async function getMobileApps(): Promise<App[]> {
+  const apps = await getApps();
+  return apps.filter(app => 
+    app.screens.some(screen => 
+      screen.platform?.some(p => 
+        ['ios', 'android'].includes(p.name.toLowerCase())
+      )
+    )
+  );
+}
+
 export async function getAppById(appId: string | undefined): Promise<App | null> {
   if (!appId || typeof appId !== 'string') {
     console.error('Error fetching app: invalid appId:', appId);

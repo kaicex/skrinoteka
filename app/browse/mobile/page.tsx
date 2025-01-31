@@ -1,6 +1,6 @@
 'use client';
 
-import { getApps } from '@/lib/contentful';
+import { useMobileApps } from '@/hooks/use-apps';
 import { PageHeader, PageHeaderHeading } from '@/components/ui/page-header';
 import { Container } from '@/components/ui/container';
 import { AppGrid } from '@/components/browse/app-grid';
@@ -18,12 +18,12 @@ import Link from 'next/link';
 import { AppCard } from '@/components/browse/app-card';
 import { useInView } from 'react-intersection-observer';
 import Fuse from 'fuse.js';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useRouter, useSearchParams, usePathname } from 'next/navigation';
 
 export default function MobileBrowsePage() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const [apps, setApps] = useState<App[]>([]);
+  const pathname = usePathname();
   const [filteredApps, setFilteredApps] = useState<App[]>([]);
   const [displayedApps, setDisplayedApps] = useState<App[]>([]);
   const [selectedCategory, setSelectedCategory] = useState("Все");
@@ -32,13 +32,36 @@ export default function MobileBrowsePage() {
   const [categories, setCategories] = useState<string[]>([]);
   const [flowTypes, setFlowTypes] = useState<string[]>([]);
   const [page, setPage] = useState(1);
-  const [isLoading, setIsLoading] = useState(true);
   const ITEMS_PER_PAGE = 12;
+
+  const { data: apps = [], isLoading } = useMobileApps();
 
   const { ref, inView } = useInView({
     threshold: 0,
     triggerOnce: false
   });
+
+  useEffect(() => {
+    if (!apps.length) return;
+
+    // Get unique categories
+    const categoriesSet = new Set(apps.map(app => app.category));
+    const uniqueCategories = ["Все", ...Array.from(categoriesSet)].filter(Boolean);
+    setCategories(uniqueCategories);
+
+    // Get unique flow types
+    const allFlowTypes = new Set<string>();
+    allFlowTypes.add("Все");
+    
+    apps.forEach(app => {
+      app.screens?.forEach(screen => {
+        if (screen.flowType?.name && screen.platform?.some(p => ['ios', 'android'].includes(p.name.toLowerCase()))) {
+          allFlowTypes.add(screen.flowType.name);
+        }
+      });
+    });
+    setFlowTypes(Array.from(allFlowTypes));
+  }, [apps]);
 
   useEffect(() => {
     const start = 0;
@@ -52,48 +75,13 @@ export default function MobileBrowsePage() {
     }
   }, [inView]);
 
-  useEffect(() => {
-    const fetchApps = async () => {
-      setIsLoading(true);
-      try {
-        const fetchedApps = await getApps();
-        // Filter only mobile apps (iOS and Android)
-        const mobileApps = fetchedApps.filter(app => 
-          app.screens.some(screen => 
-            screen.platform?.some(p => 
-              ['ios', 'android'].includes(p.name.toLowerCase())
-            )
-          )
-        );
-        
-        setApps(mobileApps);
-        setFilteredApps(mobileApps);
-        
-        // Get unique categories
-        const uniqueCategories = ["Все", ...new Set(mobileApps.map(app => app.category))].filter(Boolean);
-        setCategories(uniqueCategories);
-
-        // Get unique flow types from all screens
-        const allFlowTypes = new Set<string>();
-        allFlowTypes.add("Все");
-        mobileApps.forEach(app => {
-          app.screens?.forEach(screen => {
-            if (screen.flowType?.name) {
-              allFlowTypes.add(screen.flowType.name);
-            }
-          });
-        });
-        setFlowTypes(Array.from(allFlowTypes));
-      } finally {
-        setIsLoading(false);
-      }
-    };
-    
-    fetchApps();
-  }, []);
-
-  const filterApps = (category: string, flowType: string, query: string) => {
-    let filtered = [...apps];
+  const filterApps = (
+    allApps: App[],
+    category: string,
+    flowType: string,
+    query: string
+  ) => {
+    let filtered = [...allApps];
     
     if (category !== "Все") {
       filtered = filtered.filter(app => app.category === category);
@@ -114,18 +102,27 @@ export default function MobileBrowsePage() {
       filtered = fuse.search(query).map(result => result.item);
     }
     
+    return filtered;
+  };
+
+  useEffect(() => {
+    if (!apps.length) return;
+    const filtered = filterApps(apps, selectedCategory, selectedFlowType, searchQuery);
+    setFilteredApps(filtered);
+  }, [apps, selectedCategory, selectedFlowType, searchQuery]);
+
+  const handleCategorySelect = (value: string) => {
+    setSelectedCategory(value);
+    const filtered = filterApps(apps, value, selectedFlowType, searchQuery);
     setFilteredApps(filtered);
     setPage(1); // Сбрасываем страницу при новой фильтрации
   };
 
-  const handleCategorySelect = (value: string) => {
-    setSelectedCategory(value);
-    filterApps(value, selectedFlowType, searchQuery);
-  };
-
   const handleFlowTypeSelect = (value: string) => {
     setSelectedFlowType(value);
-    filterApps(selectedCategory, value, searchQuery);
+    const filtered = filterApps(apps, selectedCategory, value, searchQuery);
+    setFilteredApps(filtered);
+    setPage(1); // Сбрасываем страницу при новой фильтрации
     
     // Обновляем URL
     const params = new URLSearchParams(searchParams.toString());
@@ -134,12 +131,14 @@ export default function MobileBrowsePage() {
     } else {
       params.set('flowType', value);
     }
-    router.replace(`/browse/mobile?${params.toString()}`);
+    router.replace(`${pathname}?${params.toString()}`);
   };
 
   const handleSearch = (value: string) => {
     setSearchQuery(value);
-    filterApps(selectedCategory, selectedFlowType, value);
+    const filtered = filterApps(apps, selectedCategory, selectedFlowType, value);
+    setFilteredApps(filtered);
+    setPage(1); // Сбрасываем страницу при новой фильтрации
   };
 
   return (
@@ -197,17 +196,11 @@ export default function MobileBrowsePage() {
 
           <AppGrid apps={displayedApps} isLoading={isLoading}>
             {displayedApps.map((app) => (
-              <AppCard 
-                key={app.id} 
-                app={{
-                  id: app.id,
-                  name: app.name,
-                  category: app.category,
-                  description: app.description,
-                  screens: app.screens,
-                  logo: app.logo
-                }}
-                href={selectedFlowType !== "Все" ? `/browse/mobile/${app.id}?flowType=${encodeURIComponent(selectedFlowType)}` : `/browse/mobile/${app.id}`}
+              <AppCard
+                key={app.id}
+                app={app}
+                href={`/browse/mobile/${app.id}`}
+                selectedFlowType={selectedFlowType}
               />
             ))}
           </AppGrid>

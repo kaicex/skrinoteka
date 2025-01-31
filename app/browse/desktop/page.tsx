@@ -1,6 +1,6 @@
 'use client';
 
-import { useApps } from '@/hooks/use-apps';
+import { useDesktopApps } from '@/hooks/use-apps';
 import { PageHeader, PageHeaderHeading } from '@/components/ui/page-header';
 import { Container } from '@/components/ui/container';
 import { 
@@ -29,22 +29,13 @@ export default function DesktopBrowsePage() {
   const [categories, setCategories] = useState<string[]>([]);
   const [flowTypes, setFlowTypes] = useState<string[]>([]);
 
-  const { data: apps = [], isLoading } = useApps();
+  const { data: apps = [], isLoading } = useDesktopApps();
 
   useEffect(() => {
     if (!apps.length) return;
 
-    // Filter only desktop apps (web applications are considered desktop)
-    const desktopApps = apps.filter(app => 
-      app.screens.some(screen => 
-        screen.platform?.some(p => 
-          p.name.toLowerCase() === 'web'
-        )
-      )
-    );
-    
     // Get unique categories
-    const categoriesSet = new Set(desktopApps.map(app => app.category));
+    const categoriesSet = new Set(apps.map(app => app.category));
     const uniqueCategories = ["Все", ...Array.from(categoriesSet)].filter(Boolean);
     setCategories(uniqueCategories);
 
@@ -52,7 +43,7 @@ export default function DesktopBrowsePage() {
     const allFlowTypes = new Set<string>();
     allFlowTypes.add("Все");
     
-    desktopApps.forEach(app => {
+    apps.forEach(app => {
       app.screens?.forEach(screen => {
         if (screen.flowType?.name && screen.platform?.some(p => p.name.toLowerCase() === 'web')) {
           allFlowTypes.add(screen.flowType.name);
@@ -62,7 +53,7 @@ export default function DesktopBrowsePage() {
     
     setFlowTypes(Array.from(allFlowTypes));
 
-    let filtered = [...desktopApps];
+    let filtered = [...apps];
     
     // Apply category filter
     if (selectedCategory !== "Все") {
@@ -94,14 +85,7 @@ export default function DesktopBrowsePage() {
 
   const handleCategorySelect = (value: string) => {
     setSelectedCategory(value);
-    const desktopApps = apps.filter(app => 
-      app.screens.some(screen => 
-        screen.platform?.some(p => 
-          p.name.toLowerCase() === 'web'
-        )
-      )
-    );
-    let filtered = [...desktopApps];
+    let filtered = [...apps];
     
     // Apply category filter
     if (value !== "Все") {
@@ -133,14 +117,7 @@ export default function DesktopBrowsePage() {
 
   const handleFlowTypeSelect = (value: string) => {
     setSelectedFlowType(value);
-    const desktopApps = apps.filter(app => 
-      app.screens.some(screen => 
-        screen.platform?.some(p => 
-          p.name.toLowerCase() === 'web'
-        )
-      )
-    );
-    let filtered = [...desktopApps];
+    let filtered = [...apps];
     
     // Apply category filter
     if (selectedCategory !== "Все") {
@@ -181,14 +158,7 @@ export default function DesktopBrowsePage() {
 
   const handleSearch = (value: string) => {
     setSearchQuery(value);
-    const desktopApps = apps.filter(app => 
-      app.screens.some(screen => 
-        screen.platform?.some(p => 
-          p.name.toLowerCase() === 'web'
-        )
-      )
-    );
-    let filtered = [...desktopApps];
+    let filtered = [...apps];
     
     // Apply category filter
     if (selectedCategory !== "Все") {

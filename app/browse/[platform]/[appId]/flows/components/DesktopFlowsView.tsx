@@ -6,6 +6,8 @@ import { ChevronRight } from "lucide-react"
 import { useSearchParams, useRouter, usePathname } from 'next/navigation'
 import Image from 'next/image'
 import { pluralizeScreens } from '@/lib/utils/pluralize'
+import { LazyImage } from '@/components/LazyImage'
+import { FlowTypeSelect } from '../components/FlowTypeSelect'
 
 interface Screen {
   id: string
@@ -28,27 +30,6 @@ interface DesktopFlowsViewProps {
   isDesktop?: boolean
   selectedFlowType?: string
 }
-
-const LazyImage = ({ src, alt, className, priority = false }: { 
-  src: string
-  alt: string
-  className: string
-  priority?: boolean 
-}) => {
-  return (
-    <div className={`relative ${className}`}>
-      <Image
-        src={src}
-        alt={alt}
-        fill
-        className={className}
-        loading={priority ? 'eager' : 'lazy'}
-        sizes="(max-width: 1200px) 50vw, 33vw"
-        priority={priority}
-      />
-    </div>
-  );
-};
 
 const DesktopFlowsView = ({ 
   screens, 
@@ -171,7 +152,7 @@ const DesktopFlowsView = ({
   }
 
   return (
-    <div className="grid gap-4">
+    <div className="space-y-8">
       <h2 className="text-4xl font-semibold text-zinc-900">Флоу</h2>
       <div className="space-y-12">
         {flowGroups.map((group) => {

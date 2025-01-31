@@ -1,0 +1,69 @@
+@startuml
+skinparam backgroundColor white
+skinparam handwritten false
+skinparam DefaultFontName Arial
+
+title Процесс загрузки и рендеринга данных в Skreenoteka
+
+participant "Browser" as B
+participant "Next.js Server" as N
+participant "QueryClient" as Q
+participant "Contentful API" as C
+participant "React Components" as R
+
+== Инициализация ==
+B -> N: Запрос страницы
+activate N
+N -> N: Создание серверного QueryClient
+N -> Q: Инициализация с настройками\n(staleTime, retryDelay и т.д.)
+
+== Загрузка приложения ==
+N -> N: Редирект с / на /flows\n(серверный)
+N -> C: Запрос данных приложения
+activate C
+C --> N: Возврат данных
+deactivate C
+N -> R: Рендер layout.tsx с данными
+activate R
+R -> Q: Сохранение данных в кэше
+deactivate R
+N --> B: Отправка HTML
+
+== Гидрация на клиенте ==
+B -> B: Создание клиентского QueryClient
+B -> Q: Синхронизация с серверным кэшем
+activate Q
+Q -> B: Данные доступны мгновенно\nиз кэша
+deactivate Q
+
+== Фоновые обновления ==
+note over B, Q
+После staleTime (60 сек):
+- Возможен фоновый рефетч
+- Данные считаются устаревшими
+end note
+
+note over B, Q
+После gcTime (5 мин):
+- Неиспользуемые данные
+  удаляются из кэша
+end note
+
+== Prefetching ==
+B -> Q: useEffect в layout.tsx
+activate Q
+Q -> C: Предзагрузка списка приложений
+activate C
+C --> Q: Данные для prefetch
+deactivate C
+Q -> Q: Сохранение в кэше
+deactivate Q
+
+== Обработка ошибок ==
+Q -> C: Запрос данных (неудачный)
+activate C
+C --> Q: Ошибка
+deactivate C
+Q -> Q: Повтор запроса\n(до 2 раз с exponential backoff)
+
+@enduml

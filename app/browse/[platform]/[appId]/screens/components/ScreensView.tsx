@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useSearchParams, useRouter, usePathname } from 'next/navigation';
 import { ScreenModal } from './ScreenModal';
-import { LazyImage } from './LazyImage';
+import { LazyImage } from '@/components/LazyImage';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useParams } from 'next/navigation';
 
@@ -59,7 +59,6 @@ const ScreensView = ({ screens, appName }: ScreensViewProps) => {
   const updateURL = (index: number | null) => {
     const params = new URLSearchParams(searchParams.toString());
     if (index !== null && index >= 0 && index < screens.length) {
-      params.set('tab', 'screens');
       params.set('screen', (index + 1).toString());
     } else {
       params.delete('screen');
