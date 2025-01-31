@@ -1,0 +1,15 @@
+/* Стили для полноэкранного режима */
+.fullscreen-container {
+  background: black !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+.fullscreen-container video {
+  max-width: 100% !important;
+  max-height: 100vh !important;
+  width: auto !important;
+  height: auto !important;
+  margin: auto !important;
+}

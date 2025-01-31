@@ -3,8 +3,9 @@
 import { useState, useRef, useEffect } from 'react';
 import { LazyImage } from '@/components/LazyImage';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Play, Pause } from 'lucide-react';
+import { Play, Pause, Maximize, Minimize } from 'lucide-react';
 import { useParams } from 'next/navigation';
+import './VideosView.css';
 
 interface Video {
   id: string;
@@ -24,7 +25,10 @@ const VideosView = ({ videos, appName }: VideosViewProps) => {
   const [loadingStates, setLoadingStates] = useState<boolean[]>(new Array(videos.length).fill(true));
   const [playingStates, setPlayingStates] = useState<boolean[]>(new Array(videos.length).fill(false));
   const [errorStates, setErrorStates] = useState<boolean[]>(new Array(videos.length).fill(false));
+  const [showControls, setShowControls] = useState<boolean[]>(new Array(videos.length).fill(false));
+  const [isFullscreen, setIsFullscreen] = useState<boolean[]>(new Array(videos.length).fill(false));
   const videoRefs = useRef<(HTMLVideoElement | null)[]>([]);
+  const containerRefs = useRef<(HTMLDivElement | null)[]>([]);
   
   const params = useParams();
   const platform = params.platform as string;
@@ -99,38 +103,105 @@ const VideosView = ({ videos, appName }: VideosViewProps) => {
     }
   };
 
+  const toggleFullScreen = async (index: number, event: React.MouseEvent) => {
+    event.stopPropagation(); // Предотвращаем запуск видео
+    const container = containerRefs.current[index];
+    if (!container) return;
+
+    try {
+      if (document.fullscreenElement) {
+        await document.exitFullscreen();
+        setIsFullscreen(prev => {
+          const newStates = [...prev];
+          newStates[index] = false;
+          return newStates;
+        });
+      } else {
+        await container.requestFullscreen();
+        setIsFullscreen(prev => {
+          const newStates = [...prev];
+          newStates[index] = true;
+          return newStates;
+        });
+      }
+    } catch (error) {
+      console.error('Error toggling fullscreen:', error);
+    }
+  };
+
+  // Слушаем изменения fullscreen
+  useEffect(() => {
+    const handleFullscreenChange = () => {
+      if (!document.fullscreenElement) {
+        setIsFullscreen(prev => prev.map(() => false));
+      }
+    };
+
+    document.addEventListener('fullscreenchange', handleFullscreenChange);
+    return () => {
+      document.removeEventListener('fullscreenchange', handleFullscreenChange);
+    };
+  }, []);
+
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
       {filteredVideos.map((video, index) => (
         <div
           key={video.id}
+          ref={el => containerRefs.current[index] = el}
           className={`relative rounded-2xl overflow-hidden bg-zinc-100 group ${
             isDesktop ? 'aspect-[16/10]' : 'aspect-[390/844]'
-          }`}
+          } ${isFullscreen[index] ? 'fullscreen-container' : ''}`}
+          onMouseEnter={() => {
+            setShowControls(prev => {
+              const newStates = [...prev];
+              newStates[index] = true;
+              return newStates;
+            });
+          }}
+          onMouseLeave={() => {
+            setShowControls(prev => {
+              const newStates = [...prev];
+              newStates[index] = false;
+              return newStates;
+            });
+          }}
         >
-          {!errorStates[index] && (
-            <button
-              onClick={() => togglePlay(index)}
-              className="absolute inset-0 flex items-center justify-center z-10 bg-black/30 group-hover:bg-black/40 transition-colors"
-            >
-              {playingStates[index] ? (
-                <Pause className="w-12 h-12 text-white opacity-75 group-hover:opacity-100 transition-opacity" />
-              ) : (
-                <Play className="w-12 h-12 text-white opacity-75 group-hover:opacity-100 transition-opacity" />
-              )}
-            </button>
+          {!errorStates[index] && showControls[index] && (
+            <>
+              <button
+                onClick={() => togglePlay(index)}
+                className="absolute inset-0 flex items-center justify-center z-10 bg-black/30 group-hover:bg-black/40 transition-colors"
+              >
+                {playingStates[index] ? (
+                  <Pause className="w-12 h-12 text-white opacity-75 group-hover:opacity-100 transition-opacity" />
+                ) : (
+                  <Play className="w-12 h-12 text-white opacity-75 group-hover:opacity-100 transition-opacity" />
+                )}
+              </button>
+              <button
+                onClick={(e) => toggleFullScreen(index, e)}
+                className="absolute top-4 right-4 z-20 p-2 rounded-full bg-black/50 hover:bg-black/60 transition-colors"
+              >
+                {isFullscreen[index] ? (
+                  <Minimize className="w-5 h-5 text-white" />
+                ) : (
+                  <Maximize className="w-5 h-5 text-white" />
+                )}
+              </button>
+            </>
           )}
 
           {video.video?.url && !errorStates[index] ? (
             <video
               ref={el => videoRefs.current[index] = el}
               src={video.video.url}
-              className="w-full h-full object-cover"
+              className={`w-full h-full ${isFullscreen[index] ? 'object-contain' : 'object-cover'}`}
               title={video.title || `${appName} - Видео ${index + 1}`}
               onLoadedData={() => handleImageLoad(index)}
               onError={() => handleError(index)}
               preload="metadata"
-              controls={playingStates[index]}
+              controls={false}
               loop
               playsInline
               muted={!playingStates[index]}
