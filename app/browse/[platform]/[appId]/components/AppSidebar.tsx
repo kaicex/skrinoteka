@@ -49,8 +49,8 @@ export function AppSidebar({
   const platformFlowCount = filteredFlowTypes.length;
   
   return (
-    <aside className="w-full md:w-72 md:sticky md:top-8 flex-shrink-0">
-      <div className="pt-4 md:pt-0">
+    <aside className="w-full md:w-72 flex-shrink-0">
+      <div className="pt-4 md:pt-8 md:sticky md:top-8">
         <div className="mb-8">
           <Link
             href={`/browse/${params.platform}`}
