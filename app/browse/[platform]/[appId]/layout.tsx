@@ -41,58 +41,24 @@ export default function AppLayout({
     }
   }, [queryClient, params.platform])
 
-  const platformNames = useMemo(() => {
-    if (!app) return []
-    const allPlatforms = app.screens.flatMap(screen => screen.platform.map(p => p.name));
-    const uniquePlatforms = [...new Set(allPlatforms)];
-    
-    // Фильтруем платформы в зависимости от текущей платформы
-    if (params.platform === 'desktop') {
-      return uniquePlatforms.filter(p => p.toLowerCase() === 'web');
-    } else {
-      return uniquePlatforms.filter(p => ['ios', 'android'].includes(p.toLowerCase()));
-    }
-  }, [app, params.platform])
-
-  const totalScreens = useMemo(() => {
-    if (!app) return 0
-    // Фильтруем экраны в зависимости от платформы
-    const filteredScreens = app.screens.filter(screen => {
-      const screenPlatforms = screen.platform.map(p => p.name.toLowerCase());
-      if (params.platform === 'desktop') {
-        return screenPlatforms.includes('web');
-      } else {
-        return screenPlatforms.includes('ios') || screenPlatforms.includes('android');
-      }
-    });
-    return filteredScreens.length;
-  }, [app, params.platform])
-
-  if (isLoading) {
-    return <Loading />;
+  if (isLoading || !app) {
+    return <Loading />
   }
 
-  if (!app) {
-    return <Loading message="Приложение не найдено" />;
-  }
+  const totalScreens = app.screens.length
 
   return (
-    <Container size="xl" className="min-h-screen">
-      <div className="flex flex-col md:flex-row md:space-x-8 relative">
-        <AppSidebar 
-          app={app}
-          currentTab={segment}
-          hasFlows={hasFlows}
-          totalScreens={totalScreens}
-          platformNames={platformNames}
-          params={params}
-        />
-        <main className="flex-1 py-6">
-          <div className="mt-4">
-            {children}
-          </div>
-        </main>
-      </div>
+    <Container size="xl" className="flex flex-col md:flex-row gap-8">
+      <AppSidebar
+        app={app}
+        currentTab={segment}
+        hasFlows={hasFlows}
+        totalScreens={totalScreens}
+        params={params}
+      />
+      <main className="flex-1 py-6">
+        {children}
+      </main>
     </Container>
   )
 }
