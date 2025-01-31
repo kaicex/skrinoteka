@@ -6,29 +6,31 @@ import { ScreenModal } from './ScreenModal';
 import { LazyImage } from '@/components/LazyImage';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useParams } from 'next/navigation';
-
-interface Screen {
-  id: string;
-  name: string;
-  image: {
-    url: string;
-  };
-  isDesktop?: boolean;
-  duplicatedScreen?: boolean;
-}
+import { ScreenTypeSelect } from './ScreenTypeSelect';
+import { Screen } from '@/lib/types';
 
 interface ScreensViewProps {
   screens: Screen[];
   appName: string;
+  screenTypes: Array<{ name: string }>;
 }
 
-const ScreensView = ({ screens, appName }: ScreensViewProps) => {
+const ScreensView = ({ screens, appName, screenTypes }: ScreensViewProps) => {
+  const searchParams = useSearchParams();
   // Фильтруем экраны, исключая те, которые помечены как duplicatedScreen
-  const filteredScreens = screens.filter(screen => !screen.duplicatedScreen);
+  const filteredScreens = screens.filter(screen => {
+    if (screen.duplicatedScreen) return false;
+    
+    const screenTypeParam = searchParams.get('screenType');
+    if (screenTypeParam && screenTypeParam !== 'all') {
+      return screen.screenType?.name === screenTypeParam;
+    }
+    
+    return true;
+  });
   
   const [selectedScreenIndex, setSelectedScreenIndex] = useState<number | null>(null);
   const [loadingStates, setLoadingStates] = useState<boolean[]>(new Array(filteredScreens.length).fill(true));
-  const searchParams = useSearchParams();
   const router = useRouter();
   const pathname = usePathname();
   const params = useParams();
@@ -107,8 +109,13 @@ const ScreensView = ({ screens, appName }: ScreensViewProps) => {
   };
 
   return (
-    <div className="grid gap-4">
-      <h2 className="text-4xl font-semibold text-zinc-900">Экраны</h2>
+    <div className="space-y-4">
+      <div className="flex justify-between items-start">
+        <div className="space-y-2">
+          <h2 className="text-2xl font-bold">{appName}</h2>
+          <div className="text-sm text-zinc-500">{filteredScreens.length} экранов</div>
+        </div>
+      </div>
       <div className={`grid grid-cols-2 ${isDesktop ? 'lg:grid-cols-3' : 'md:grid-cols-3 lg:grid-cols-4'} gap-4`}>
         {filteredScreens.map((screen, index) => {
           if (!screen.image?.url) return null;

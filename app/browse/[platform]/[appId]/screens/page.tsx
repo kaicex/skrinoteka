@@ -31,7 +31,11 @@ export default function ScreensPage() {
 
   return (
     <Suspense fallback={<Loading message="Загрузка экранов..." />}>
-      <ScreensView screens={filteredScreens} appName={app.name} />
+      <ScreensView 
+        screens={filteredScreens} 
+        appName={app.name} 
+        screenTypes={app.screenTypes || []}
+      />
     </Suspense>
   )
 }

@@ -6,7 +6,6 @@ import { LazyImage } from '@/components/LazyImage'
 import { FlowModal } from './FlowModal'
 import { ChevronRight } from "lucide-react"
 import { pluralizeScreens } from '@/lib/utils/pluralize'
-import { FlowTypeSelect } from '../components/FlowTypeSelect'
 
 interface Screen {
   id: string

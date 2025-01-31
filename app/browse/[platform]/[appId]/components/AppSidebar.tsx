@@ -6,6 +6,7 @@ import { ArrowLeft } from 'lucide-react'
 import { App } from '@/lib/types'
 import { cn } from '@/lib/utils'
 import { FlowTypeSelect } from '../flows/components/FlowTypeSelect'
+import { ScreenTypeSelect } from '../screens/components/ScreenTypeSelect'
 import { pluralizeScreens } from '@/lib/utils/pluralize'
 
 interface AppSidebarProps {
@@ -145,6 +146,15 @@ export function AppSidebar({
                 <div className="pt-3">
                   <FlowTypeSelect 
                     flowTypes={app.flowTypes || []} 
+                    screens={app.screens} 
+                  />
+                </div>
+              )}
+
+              {currentTab === 'screens' && (
+                <div className="pt-3">
+                  <ScreenTypeSelect 
+                    screenTypes={app.screenTypes || []} 
                     screens={app.screens} 
                   />
                 </div>

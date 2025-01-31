@@ -11,6 +11,10 @@ export interface Screen {
   flowType?: {
     name: string;
   };
+  screenType?: {
+    name: string;
+  };
+  duplicatedScreen?: boolean;
   thumbnail?: boolean;
   order?: number;
   createdAt: string;
@@ -36,6 +40,9 @@ export interface App {
     url: string;
   };
   flowTypes?: Array<{
+    name: string;
+  }>;
+  screenTypes?: Array<{
     name: string;
   }>;
   date_updated?: string;

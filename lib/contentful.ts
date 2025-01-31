@@ -53,6 +53,9 @@ export async function getApps(): Promise<App[]> {
         flowType: screen.fields.flowType ? {
           name: screen.fields.flowType.fields?.name || ''
         } : undefined,
+        screenType: screen.fields.screenType ? {
+          name: screen.fields.screenType.fields?.name || ''
+        } : undefined,
         thumbnail: screen.fields.thumbnail || false,
         order: screen.fields.order || undefined,
         createdAt: screen.sys.createdAt
@@ -163,6 +166,9 @@ export async function getAppById(appId: string | undefined): Promise<App | null>
         flowType: screen.fields.flowType ? {
           name: screen.fields.flowType.fields?.name || ''
         } : undefined,
+        screenType: screen.fields.screenType ? {
+          name: screen.fields.screenType.fields?.name || ''
+        } : undefined,
         thumbnail: screen.fields.thumbnail || false,
         order: screen.fields.order || 0,
         createdAt: screen.sys.createdAt
@@ -180,6 +186,13 @@ export async function getAppById(appId: string | undefined): Promise<App | null>
     const uniqueFlowTypes = Array.from(new Set(
       screens
         .map(screen => screen.flowType?.name)
+        .filter(Boolean)
+    )).map(name => ({ name }));
+
+    // Получаем уникальные типы экранов
+    const uniqueScreenTypes = Array.from(new Set(
+      screens
+        .map(screen => screen.screenType?.name)
         .filter(Boolean)
     )).map(name => ({ name }));
 
@@ -217,6 +230,7 @@ export async function getAppById(appId: string | undefined): Promise<App | null>
       screens,
       videos,
       flowTypes: uniqueFlowTypes,
+      screenTypes: uniqueScreenTypes,
       platforms: fields.platforms || [],
       date_updated: fields.dateUpdated || '',
     };
