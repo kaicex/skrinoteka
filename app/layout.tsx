@@ -5,6 +5,7 @@ import { Toaster } from '@/components/ui/toaster';
 import { PropsWithChildren } from 'react';
 import { getURL } from '@/utils/helpers';
 import 'styles/main.css';
+import { Providers } from './providers';
 
 const title = 'Skreenoteka - UX вдохновение';
 const description = 'Brought to you by Skreenoteka';
@@ -30,16 +31,20 @@ export default function RootLayout({ children }: PropsWithChildren) {
   return (
     <html lang="en">
       <body className="min-h-screen bg-background font-sans antialiased">
-        <MainNav />
-        
-        <main
-          id="skip"
-          className="min-h-[calc(100dvh-4rem)] md:min-h-[calc(100dvh-5rem)]"
-        >
-          {children}
-        </main>
-        <Footer />
-        <Toaster />
+        <Providers>
+
+          
+          <MainNav />
+          
+          <main
+            id="skip"
+            className="min-h-[calc(100dvh-4rem)] md:min-h-[calc(100dvh-5rem)]"
+          >
+            {children}
+          </main>
+          <Footer />
+          <Toaster />
+        </Providers>
       </body>
     </html>
   );

@@ -1,6 +1,6 @@
 'use client';
 
-import { getApps } from '@/lib/contentful';
+import { useApps } from '@/hooks/use-apps';
 import { PageHeader, PageHeaderHeading } from '@/components/ui/page-header';
 import { Container } from '@/components/ui/container';
 import { 
@@ -22,95 +22,152 @@ import { useRouter, useSearchParams } from 'next/navigation';
 export default function DesktopBrowsePage() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const [apps, setApps] = useState<App[]>([]);
   const [filteredApps, setFilteredApps] = useState<App[]>([]);
   const [selectedCategory, setSelectedCategory] = useState("Все");
   const [selectedFlowType, setSelectedFlowType] = useState(searchParams.get('flowType') || "Все");
   const [searchQuery, setSearchQuery] = useState("");
   const [categories, setCategories] = useState<string[]>([]);
   const [flowTypes, setFlowTypes] = useState<string[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+
+  const { data: apps = [], isLoading } = useApps();
 
   useEffect(() => {
-    const fetchApps = async () => {
-      setIsLoading(true);
-      try {
-        const fetchedApps = await getApps();
-        
-        // Filter only desktop apps
-        const desktopApps = fetchedApps.filter(app => 
-          app.screens.some(screen => 
-            screen.platform?.some(p => 
-              ['web', 'desktop'].includes(p.name.toLowerCase())
-            )
-          )
-        );
-        
-        setApps(desktopApps);
-        setFilteredApps(desktopApps);
-        
-        // Get unique categories
-        const categoriesSet = new Set(desktopApps.map(app => app.category));
-        const uniqueCategories = ["Все", ...Array.from(categoriesSet)].filter(Boolean);
-        setCategories(uniqueCategories);
+    if (!apps.length) return;
 
-        // Get unique flow types
-        const allFlowTypes = new Set<string>();
-        allFlowTypes.add("Все");
-        
-        desktopApps.forEach(app => {
-          app.screens?.forEach(screen => {
-            if (screen.flowType?.name) {
-              allFlowTypes.add(screen.flowType.name);
-            }
-          });
-        });
-        
-        setFlowTypes(Array.from(allFlowTypes));
-      } finally {
-        setIsLoading(false);
-      }
-    };
+    // Filter only desktop apps (web applications are considered desktop)
+    const desktopApps = apps.filter(app => 
+      app.screens.some(screen => 
+        screen.platform?.some(p => 
+          p.name.toLowerCase() === 'web'
+        )
+      )
+    );
     
-    fetchApps();
-  }, []);
+    // Get unique categories
+    const categoriesSet = new Set(desktopApps.map(app => app.category));
+    const uniqueCategories = ["Все", ...Array.from(categoriesSet)].filter(Boolean);
+    setCategories(uniqueCategories);
 
-  const filterApps = (category: string, flowType: string, query: string) => {
-    let filtered = [...apps];
+    // Get unique flow types from web platform screens only
+    const allFlowTypes = new Set<string>();
+    allFlowTypes.add("Все");
+    
+    desktopApps.forEach(app => {
+      app.screens?.forEach(screen => {
+        if (screen.flowType?.name && screen.platform?.some(p => p.name.toLowerCase() === 'web')) {
+          allFlowTypes.add(screen.flowType.name);
+        }
+      });
+    });
+    
+    setFlowTypes(Array.from(allFlowTypes));
+
+    let filtered = [...desktopApps];
     
     // Apply category filter
-    if (category !== "Все") {
-      filtered = filtered.filter(app => app.category === category);
+    if (selectedCategory !== "Все") {
+      filtered = filtered.filter(app => app.category === selectedCategory);
     }
     
     // Apply flow type filter
-    if (flowType !== "Все") {
+    if (selectedFlowType !== "Все") {
       filtered = filtered.filter(app => 
-        app.screens?.some(screen => screen.flowType?.name === flowType)
+        app.screens?.some(screen => 
+          screen.flowType?.name === selectedFlowType && 
+          screen.platform?.some(p => p.name.toLowerCase() === 'web')
+        )
       );
     }
 
     // Apply search filter
-    if (query.trim()) {
+    if (searchQuery.trim()) {
       const fuse = new Fuse(filtered, {
         keys: ['name', 'description'],
         threshold: 0.3,
         ignoreLocation: true,
       });
-      filtered = fuse.search(query).map(result => result.item);
+      filtered = fuse.search(searchQuery).map(result => result.item);
     }
-    
+
     setFilteredApps(filtered);
-  };
+  }, [apps, selectedCategory, selectedFlowType, searchQuery]);
 
   const handleCategorySelect = (value: string) => {
     setSelectedCategory(value);
-    filterApps(value, selectedFlowType, searchQuery);
+    const desktopApps = apps.filter(app => 
+      app.screens.some(screen => 
+        screen.platform?.some(p => 
+          p.name.toLowerCase() === 'web'
+        )
+      )
+    );
+    let filtered = [...desktopApps];
+    
+    // Apply category filter
+    if (value !== "Все") {
+      filtered = filtered.filter(app => app.category === value);
+    }
+    
+    // Apply flow type filter
+    if (selectedFlowType !== "Все") {
+      filtered = filtered.filter(app => 
+        app.screens?.some(screen => 
+          screen.flowType?.name === selectedFlowType && 
+          screen.platform?.some(p => p.name.toLowerCase() === 'web')
+        )
+      );
+    }
+
+    // Apply search filter
+    if (searchQuery.trim()) {
+      const fuse = new Fuse(filtered, {
+        keys: ['name', 'description'],
+        threshold: 0.3,
+        ignoreLocation: true,
+      });
+      filtered = fuse.search(searchQuery).map(result => result.item);
+    }
+
+    setFilteredApps(filtered);
   };
 
   const handleFlowTypeSelect = (value: string) => {
     setSelectedFlowType(value);
-    filterApps(selectedCategory, value, searchQuery);
+    const desktopApps = apps.filter(app => 
+      app.screens.some(screen => 
+        screen.platform?.some(p => 
+          p.name.toLowerCase() === 'web'
+        )
+      )
+    );
+    let filtered = [...desktopApps];
+    
+    // Apply category filter
+    if (selectedCategory !== "Все") {
+      filtered = filtered.filter(app => app.category === selectedCategory);
+    }
+    
+    // Apply flow type filter
+    if (value !== "Все") {
+      filtered = filtered.filter(app => 
+        app.screens?.some(screen => 
+          screen.flowType?.name === value && 
+          screen.platform?.some(p => p.name.toLowerCase() === 'web')
+        )
+      );
+    }
+
+    // Apply search filter
+    if (searchQuery.trim()) {
+      const fuse = new Fuse(filtered, {
+        keys: ['name', 'description'],
+        threshold: 0.3,
+        ignoreLocation: true,
+      });
+      filtered = fuse.search(searchQuery).map(result => result.item);
+    }
+
+    setFilteredApps(filtered);
     
     // Обновляем URL
     const params = new URLSearchParams(searchParams.toString());
@@ -124,7 +181,41 @@ export default function DesktopBrowsePage() {
 
   const handleSearch = (value: string) => {
     setSearchQuery(value);
-    filterApps(selectedCategory, selectedFlowType, value);
+    const desktopApps = apps.filter(app => 
+      app.screens.some(screen => 
+        screen.platform?.some(p => 
+          p.name.toLowerCase() === 'web'
+        )
+      )
+    );
+    let filtered = [...desktopApps];
+    
+    // Apply category filter
+    if (selectedCategory !== "Все") {
+      filtered = filtered.filter(app => app.category === selectedCategory);
+    }
+    
+    // Apply flow type filter
+    if (selectedFlowType !== "Все") {
+      filtered = filtered.filter(app => 
+        app.screens?.some(screen => 
+          screen.flowType?.name === selectedFlowType && 
+          screen.platform?.some(p => p.name.toLowerCase() === 'web')
+        )
+      );
+    }
+
+    // Apply search filter
+    if (value.trim()) {
+      const fuse = new Fuse(filtered, {
+        keys: ['name', 'description'],
+        threshold: 0.3,
+        ignoreLocation: true,
+      });
+      filtered = fuse.search(value).map(result => result.item);
+    }
+
+    setFilteredApps(filtered);
   };
 
   return (

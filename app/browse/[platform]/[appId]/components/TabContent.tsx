@@ -1,14 +1,15 @@
 'use client'
 
-import { useTabsCache } from '../hooks/useTabsCache'
-import { lazy, Suspense, useEffect, useMemo, useState } from 'react'
+import { lazy, Suspense } from 'react'
 import dynamic from 'next/dynamic'
-import { useParams } from 'next/navigation'
+import { useParams, useRouter } from 'next/navigation'
+import { App } from '@/lib/types'
+import { useEffect, useState } from 'react';
 
 const ScreensView = dynamic(() => import('./ScreensView'), {
   loading: () => (
     <div className="w-full min-h-[calc(100vh-200px)] flex items-center justify-center">
-      <div className="text-zinc-400 text-lg">Загрузка экранов...</div>
+      <div className="text-zinc-400 text-lg">Loading screens...</div>
     </div>
   ),
   ssr: false
@@ -17,7 +18,7 @@ const ScreensView = dynamic(() => import('./ScreensView'), {
 const FlowsView = dynamic(() => import('./FlowsView'), {
   loading: () => (
     <div className="w-full min-h-[calc(100vh-200px)] flex items-center justify-center">
-      <div className="text-zinc-400 text-lg">Загрузка флоу...</div>
+      <div className="text-zinc-400 text-lg">Loading flows...</div>
     </div>
   ),
   ssr: false
@@ -26,125 +27,74 @@ const FlowsView = dynamic(() => import('./FlowsView'), {
 const DesktopFlowsView = dynamic(() => import('./DesktopFlowsView'), {
   loading: () => (
     <div className="w-full min-h-[calc(100vh-200px)] flex items-center justify-center">
-      <div className="text-zinc-400 text-lg">Загрузка флоу...</div>
+      <div className="text-zinc-400 text-lg">Loading flows...</div>
     </div>
   ),
   ssr: false
 })
 
-interface TabData {
-  screens: Array<any>;
-  flowTypes?: Array<{ name: string }>;
-  appName: string;
-}
-
-interface DesktopFlowsViewProps {
-  screens: TabData['screens'];
-  flowTypes: Array<{ name: string }>;
-  appName: string;
-  isDesktop: boolean;
-  selectedFlowType?: string;
-}
-
 interface TabContentProps {
   currentTab: string;
-  initialScreens: any[];
-  initialFlowTypes: Array<{ name: string }>;
-  initialFlowScreens: any[];
-  appName: string;
-  selectedFlowType?: string;
+  app: App;
+  selectedFlowType: string;
 }
 
 export function TabContent({
   currentTab,
-  initialScreens,
-  initialFlowTypes,
-  initialFlowScreens,
-  appName,
+  app,
   selectedFlowType
 }: TabContentProps) {
+  const [mounted, setMounted] = useState(false);
   const params = useParams();
-  const platform = params.platform as string;
+  const router = useRouter();
+  const isDesktop = params.platform === 'desktop';
 
-  // Используем useMemo для подготовки данных активного таба
-  const activeTabData = useMemo(() => {
-    const allowedPlatforms = platform === 'mobile' 
-      ? ['ios', 'android']
-      : ['web', 'desktop'];
-
-    // Фильтруем скрины по платформе
-    const filterScreensByPlatform = (screens: any[]) => 
-      screens.filter(screen =>
-        screen.platform?.some((p: any) => 
-          allowedPlatforms.includes(p.name.toLowerCase())
-        )
-      );
-
-    if (currentTab === 'screens') {
-      return {
-        screens: filterScreensByPlatform(initialScreens),
-        appName
-      }
-    } else {
-      return {
-        flowTypes: initialFlowTypes,
-        screens: filterScreensByPlatform(initialFlowScreens),
-        appName
-      }
-    }
-  }, [currentTab, initialScreens, initialFlowTypes, initialFlowScreens, appName, platform])
-
-  // Предзагрузка следующей порции данных
   useEffect(() => {
-    const timer = setTimeout(() => {
-      if (currentTab === 'screens' && initialScreens.length > 20) {
-        // Подготавливаем следующие экраны
-        const nextScreens = initialScreens.slice(20)
-        nextScreens.slice(0, 4).forEach(screen => {
-          if (screen?.url && typeof screen.url === 'string') {
-            const img = new Image()
-            img.src = screen.url
-          }
-        })
-      } else if (initialFlowScreens.length > 20) {
-        // Подготавливаем следующие flow экраны
-        const nextFlowScreens = initialFlowScreens.slice(20)
-        nextFlowScreens.slice(0, 4).forEach(screen => {
-          if (screen?.url && typeof screen.url === 'string') {
-            const img = new Image()
-            img.src = screen.url
-          }
-        })
-      }
-    }, 1000)
+    setMounted(true);
+  }, []);
 
-    return () => clearTimeout(timer)
-  }, [currentTab, initialScreens, initialFlowScreens])
+  // Автоматически переключаемся на таб flows если есть flowType в URL
+  useEffect(() => {
+    if (!mounted) return;
 
-  if (currentTab === 'screens') {
+    const searchParams = new URLSearchParams(window.location.search);
+    const flowType = searchParams.get('flowType');
+    if (flowType && currentTab !== 'flows') {
+      router.replace(`/browse/${params.platform}/${params.appId}?tab=flows&flowType=${flowType}`);
+    }
+  }, [mounted, currentTab, params.platform, params.appId]);
+
+  if (currentTab === 'flows' && isDesktop) {
     return (
-      <ScreensView {...activeTabData} />
+      <Suspense fallback={<div>Loading...</div>}>
+        <DesktopFlowsView
+          screens={app.screens}
+          flowTypes={app.flowTypes || []}
+          appName={app.name}
+          isDesktop={true}
+          selectedFlowType={selectedFlowType}
+        />
+      </Suspense>
     )
   }
 
-  // Используем DesktopFlowsView только для desktop приложений
-  if (platform === 'desktop') {
+  if (currentTab === 'flows') {
     return (
-      <DesktopFlowsView 
-        {...activeTabData} 
-        flowTypes={activeTabData.flowTypes || []} 
-        isDesktop={true}
-        selectedFlowType={selectedFlowType}
-      />
+      <Suspense fallback={<div>Loading...</div>}>
+        <FlowsView
+          screens={app.screens}
+          flowTypes={app.flowTypes || []}
+          appName={app.name}
+          isDesktop={false}
+          selectedFlowType={selectedFlowType}
+        />
+      </Suspense>
     )
   }
 
   return (
-    <FlowsView 
-      {...activeTabData} 
-      flowTypes={activeTabData.flowTypes || []} 
-      isDesktop={platform === 'desktop'}
-      selectedFlowType={selectedFlowType}
-    />
+    <Suspense fallback={<div>Loading...</div>}>
+      <ScreensView screens={app.screens} appName={app.name} />
+    </Suspense>
   )
 }

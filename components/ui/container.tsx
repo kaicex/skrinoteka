@@ -19,8 +19,8 @@ export function Container({
           'max-w-screen-sm': size === 'sm',    // 640px
           'max-w-3xl': size === 'md',          // 768px
           'max-w-screen-lg': size === 'lg',    // 1024px
-          'max-w-screen-xl': size === 'xl',    // 1280px
-          'max-w-full': size === 'full'        // No max width
+          'max-w-[1600px]': size === 'xl',     // 1920px
+          'w-full': size === 'full',
         },
         className
       )}

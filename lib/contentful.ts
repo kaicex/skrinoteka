@@ -127,6 +127,7 @@ export async function getAppById(appId: string | undefined): Promise<App | null>
       .filter((screen: any) => screen.fields?.image?.fields?.file?.url)
       .map((screen: any) => ({
         id: screen.sys.id,
+        name: screen.fields.title || 'Untitled Screen',
         title: screen.fields.title,
         image: {
           url: `https:${screen.fields.image.fields.file.url}`
@@ -138,7 +139,7 @@ export async function getAppById(appId: string | undefined): Promise<App | null>
           name: screen.fields.flowType.fields?.name || ''
         } : undefined,
         thumbnail: screen.fields.thumbnail || false,
-        order: screen.fields.order || undefined,
+        order: screen.fields.order || 0,
         createdAt: screen.sys.createdAt
       }))
       .sort((a, b) => {

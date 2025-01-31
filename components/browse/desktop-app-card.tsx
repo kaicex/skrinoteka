@@ -5,7 +5,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
-import { App } from '@/lib/types';
+import { App } from '@/lib/types'; // убедиться, что импорт App из '@/lib/types' корректен
 
 interface DesktopAppCardProps {
   app: App;

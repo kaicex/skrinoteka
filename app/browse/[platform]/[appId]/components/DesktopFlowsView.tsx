@@ -17,7 +17,7 @@ interface Screen {
   flowType?: {
     name: string
   }
-  order: number
+  order?: number
   createdAt: string
 }
 
@@ -58,7 +58,7 @@ const DesktopFlowsView = ({
   selectedFlowType
 }: DesktopFlowsViewProps) => {
   const [selectedFlow, setSelectedFlow] = useState<{
-    screens: { url: string; id: string; order: number; createdAt: string }[]
+    screens: { url: string; id: string; order?: number; createdAt: string }[]
     type: string
   } | null>(null)
   const [currentIndex, setCurrentIndex] = useState(0)

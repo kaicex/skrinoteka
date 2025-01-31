@@ -1,207 +1,163 @@
-import { getAppById } from '@/lib/contentful';
+'use client';
+
 import { Container } from '@/components/ui/container';
-import { PageHeader, PageHeaderHeading } from '@/components/ui/page-header';
 import { notFound } from 'next/navigation';
-import Image from 'next/image';
-import { ArrowLeft } from 'lucide-react';
-import Link from 'next/link';
-import { AppTabs } from './components/AppTabs';
+import { useApp } from '@/hooks/use-apps';
+import { AppPageProps } from './types';
+import { App } from '@/lib/types';
+import { Suspense, useMemo, useCallback, useEffect } from 'react';
+import { useRouter, usePathname, useSearchParams } from 'next/navigation';
+import { AppSidebar } from './components/AppSidebar';
 import { TabContent } from './components/TabContent';
-import { FlowTypeSelect } from './components/FlowTypeSelect';
-import { pluralizeScreens } from '@/lib/utils/pluralize';
-import { formatDate } from '@/lib/utils/date';
 
-interface AppPageProps {
-  params: {
-    platform: string;
-    appId: string;
-  };
-  searchParams: {
-    tab?: string;
-    flowType?: string;
-  };
-}
+export default function AppPage({ params, searchParams }: AppPageProps) {
+  const { data: app, isLoading, error } = useApp(params.appId);
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParamsObj = useSearchParams();
 
-interface App {
-  name: string;
-  screens: any[];
-  flowTypes?: Array<{ name: string }>;
-  // другие поля...
-}
-
-export default async function AppPage({ params, searchParams }: AppPageProps) {
-  console.log('Fetching app with ID:', params.appId);
-  const app = await getAppById(params.appId);
+  const hasFlows = app ? Boolean(app.flowTypes && app.flowTypes.length > 0) : false;
   
-  if (!app) {
-    console.error('App not found:', params.appId);
-    notFound();
-  }
+  const selectedFlowType = useMemo(() => {
+    if (searchParams.flowType && app?.flowTypes?.some(ft => ft.name === searchParams.flowType)) {
+      return searchParams.flowType;
+    }
+    return 'Все флоу';
+  }, [searchParams.flowType, app?.flowTypes]);
 
-  // Определяем разрешенные платформы
+  const currentTab = useMemo(() => {
+    if (!hasFlows) return 'screens';
+    return searchParams.tab || 'flows';
+  }, [hasFlows, searchParams.tab]);
+
+  const handleTabChange = useCallback((tab: string) => {
+    const newSearchParams = new URLSearchParams(searchParamsObj.toString());
+    newSearchParams.set('tab', tab);
+    
+    if (tab === 'screens') {
+      newSearchParams.delete('flowType');
+    }
+    
+    router.replace(`${pathname}?${newSearchParams.toString()}`);
+  }, [searchParamsObj, pathname, router]);
+
+  useEffect(() => {
+    if (hasFlows && !searchParams.tab) {
+      handleTabChange('flows');
+    }
+  }, []);
+
+  const filteredScreens = useMemo(() => {
+    if (!app) return [];
+    
+    if (currentTab === 'flows' && selectedFlowType !== 'Все флоу') {
+      return app.screens.filter(screen => screen.flowType?.name === selectedFlowType);
+    }
+    return app.screens;
+  }, [app, currentTab, selectedFlowType]);
+
   const allowedPlatforms = params.platform === 'mobile' 
     ? ['ios', 'android']
     : ['web', 'desktop'];
 
-  // Фильтруем скрины только для текущей платформы
-  const filteredScreens = app.screens.filter(screen =>
-    screen.platform?.some(p => 
-      allowedPlatforms.includes(p.name.toLowerCase())
-    )
-  );
+  // Отдельный список для статистики (все экраны)
+  const allScreensWithPlatform = useMemo(() => {
+    if (!app) return [];
+    return app.screens.filter(screen => 
+      screen.platform?.some(p => allowedPlatforms.includes(p.name.toLowerCase()))
+    );
+  }, [app, allowedPlatforms]);
 
-  // Если нет скринов для данной платформы - показываем 404
-  if (filteredScreens.length === 0) {
+  // Список для отображения (фильтруется по флоу)
+  const filteredScreensWithPlatform = useMemo(() => {
+    let screens = filteredScreens;
+    return screens
+      .filter(screen => screen.platform?.some(p => 
+        allowedPlatforms.includes(p.name.toLowerCase())
+      ))
+      .map((screen, index) => ({
+        ...screen,
+        name: screen.title || 'Untitled Screen',
+        platform: screen.platform || [],
+        createdAt: screen.createdAt || new Date().toISOString(),
+        order: screen.order ?? index + 1,
+      }));
+  }, [filteredScreens, allowedPlatforms]);
+
+  // Получаем список уникальных платформ
+  const platformNames = useMemo(() => {
+    return Array.from(new Set(
+      allScreensWithPlatform.flatMap(screen => 
+        screen.platform
+          .filter(p => allowedPlatforms.includes(p.name.toLowerCase()))
+          .map(p => p.name)
+      )
+    ));
+  }, [allScreensWithPlatform, allowedPlatforms]);
+
+  if (isLoading) {
+    return (
+      <Container size="xl">
+        <div className="flex flex-col md:flex-row gap-6 pt-8">
+          <div className="w-56 flex-shrink-0">
+            <div className="animate-pulse">
+              <div className="h-16 w-16 bg-zinc-200 rounded-lg mb-4" />
+              <div className="h-6 w-32 bg-zinc-200 rounded mb-2" />
+              <div className="h-4 w-24 bg-zinc-200 rounded mb-8" />
+              <div className="space-y-4">
+                <div className="h-8 w-full bg-zinc-200 rounded" />
+                <div className="h-8 w-full bg-zinc-200 rounded" />
+              </div>
+            </div>
+          </div>
+          <div className="flex-1 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+            {[...Array(8)].map((_, i) => (
+              <div
+                key={i}
+                className="aspect-[9/16] bg-zinc-200 rounded-lg animate-pulse"
+              />
+            ))}
+          </div>
+        </div>
+      </Container>
+    );
+  }
+
+  if (error || !app) {
     notFound();
   }
 
-  // Получаем уникальные платформы только для отфильтрованных скринов
-  const platforms = Array.from(new Set(
-    filteredScreens.flatMap(screen => 
-      screen.platform
-        ?.filter(p => allowedPlatforms.includes(p.name.toLowerCase()))
-        .map(p => p.name) || []
-    )
-  ));
+  if (filteredScreensWithPlatform.length === 0) {
+    notFound();
+  }
 
-  // Фильтруем типы потоков только для отфильтрованных скринов
-  const filteredFlowTypes = app.flowTypes?.filter(flowType =>
-    filteredScreens.some(screen => screen.flowType?.name === flowType.name)
-  ) || [];
-
-  // Устанавливаем вкладку по умолчанию в зависимости от наличия флоу
-  const hasFlows = filteredFlowTypes.length > 0;
-  const currentTab = searchParams.tab || (hasFlows ? 'flows' : 'screens');
-  const selectedFlowType = searchParams.flowType || 'Все флоу';
-
-  // Обновляем app с отфильтрованными данными
-  app.screens = filteredScreens;
-  app.flowTypes = filteredFlowTypes;
+  const appWithFilteredData: App = {
+    ...app,
+    screens: filteredScreensWithPlatform,
+    category: app.category || 'Unknown',
+  };
 
   return (
     <Container size="xl">
       <div className="flex flex-col md:flex-row gap-6 pt-8 min-h-[calc(100vh-64px)]">
-        {/* Sidebar */}
-        <aside className="w-full md:w-44 shrink-0">
-          
-          <div className="md:sticky md:top-[64px] flex flex-col md:min-h-[calc(100vh-64px)] pb-16">
-            <div className="space-y-6">
-              {/* App Info */}
-              <div className="flex flex-col gap-5">
-                {/* Mobile Back Button */}
-                <div className="md:hidden flex items-center gap-4">
-                  <Link 
-                    href={`/browse/${params.platform}`}
-                    className="flex items-center text-zinc-500 hover:text-zinc-500"
-                  >
-                    <ArrowLeft className="w-6 h-6" />
-                  </Link>
-                  {app.logo?.url && (
-                    <div className="rounded-xl w-12 h-12 flex-shrink-0 bg-zinc-100 flex items-center justify-center">
-                      <Image
-                        src={app.logo.url}
-                        alt={`${app.name} logo`}
-                        width={48}
-                        height={48}
-                        className="w-12 h-12 object-contain max-w-full max-h-full rounded-xl"
-                      />
-                    </div>
-                  )}
-                  <div>
-                    <h1 className="text-2xl font-semibold">{app.name}</h1>
-                    <div className="text-sm text-zinc-500 -mt-1">{app.category}</div>
-                  </div>
-                </div>
-                {/* Desktop Logo */}
-                <div className="hidden md:block">
-                  {app.logo?.url && (
-                    <div className="rounded-3xl w-full aspect-square flex-shrink-0 bg-zinc-100 flex items-center justify-center">
-                      <Image
-                        src={app.logo.url}
-                        alt={`${app.name} logo`}
-                        width={140}
-                        height={140}
-                        className="w-[140px] h-[140px] object-contain max-w-full max-h-full rounded-3xl"
-                      />
-                    </div>
-                  )}
-                </div>
-                <div>
-                  <h1 className="hidden md:block text-2xl font-semibold">{app.name}</h1>
-                  <div className="hidden md:block text-sm text-zinc-500 mt-1">{app.category}</div>
-                </div>
-                {/* Navigation Tabs */}
-                <AppTabs 
-                  currentTab={currentTab}
-                  platform={params.platform}
-                  appId={params.appId}
-                />
-                {/* Flow Types Filter */}
-                {currentTab === 'flows' && app.flowTypes && app.flowTypes.length > 0 && (
-                  <FlowTypeSelect
-                    flowTypes={app.flowTypes}
-                    defaultValue={selectedFlowType}
-                  />
-                )}
-                
-                {/* About */}
-                {app.description && (
-                  <div>
-                    <div className="text-xs text-zinc-500">О приложении</div>
-                    <div className="text-sm">{app.description}</div>
-                  </div>
-                )}
-
-                {/* Stats */}
-                <div>
-                  <div className="text-xs text-zinc-500">Всего экранов</div>
-                  <div className="text-sm">{pluralizeScreens(app.screens.length)}</div>
-                </div>
-
-                <div>
-                  <div className="text-xs text-zinc-500">Всего флоу</div>
-                  <div className="text-sm">{app.flowTypes?.length}</div>
-                </div>
-
-                {/* Platforms */}
-                <div>
-                  <div className="text-xs text-zinc-500">Платформы</div>
-                  <div className="text-sm">{platforms.join(", ")}</div>
-                </div>
-
-                {/* Date Updated */}
-                {app.date_updated && (
-                  <div>
-                    <div className="text-xs text-zinc-500">Обновлен</div>
-                    <div className="text-sm">{formatDate(app.date_updated)}</div>
-                  </div>
-                )}
-
-                {/* Flow Types */}
-                {/* {app.flowTypes && app.flowTypes.length > 0 && (
-                  <div>
-                    <div className="text-xs text-zinc-500">Типы флоу</div>
-                    <div className="text-sm">
-                      {app.flowTypes.map(flowType => flowType.name).join(", ")}
-                    </div>
-                  </div>
-                )} */}
-              </div>
-            </div>
-          </div>
-        </aside>
-
-        {/* Main content */}
-        <main className="flex-1">
-          <TabContent 
+        <AppSidebar 
+          app={app}
+          currentTab={currentTab}
+          hasFlows={hasFlows}
+          selectedFlowType={selectedFlowType}
+          totalScreens={allScreensWithPlatform.length}
+          platformNames={platformNames}
+          onTabChange={handleTabChange}
+          params={params}
+        />
+        
+        <div className="flex-1">
+          <TabContent
             currentTab={currentTab}
-            initialScreens={app.screens}
-            initialFlowTypes={app.flowTypes || []}
-            initialFlowScreens={app.screens}
-            appName={app.name}
+            app={appWithFilteredData}
             selectedFlowType={selectedFlowType}
           />
-        </main>
+        </div>
       </div>
     </Container>
   );

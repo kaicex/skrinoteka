@@ -5,13 +5,14 @@ import Link from 'next/link';
 import Logo from '@/components/icons/Logo';
 import { usePathname } from 'next/navigation';
 import { cn } from '@/utils/cn';
+import { Container } from './container';
 
 export default function MainNav() {
   const pathname = usePathname();
 
   return (
     <nav className="w-full border-b border-gray-800/30 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-      <div className="max-w-screen-xl px-4 mx-auto relative">
+      <Container size="xl">
         <div className="flex items-center h-16">
           {/* Left side - Logo (mobile) */}
           <div className="md:hidden">
@@ -57,7 +58,7 @@ export default function MainNav() {
             </Link>
           </div>
         </div>
-      </div>
+      </Container>
     </nav>
   );
 }

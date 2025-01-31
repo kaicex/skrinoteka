@@ -1,0 +1,98 @@
+@startuml Architecture
+
+' Стили
+skinparam componentStyle rectangle
+skinparam backgroundColor white
+skinparam defaultFontName Arial
+skinparam defaultFontSize 12
+skinparam arrowColor #666666
+skinparam componentBackgroundColor #FFFFFF
+skinparam componentBorderColor #666666
+skinparam databaseBackgroundColor #FFFFFF
+skinparam databaseBorderColor #666666
+
+' Определение компонентов
+package "Frontend (Next.js)" {
+    [App Router] as router
+    [Providers] as providers
+    
+    package "Pages" {
+        [Desktop Page] as desktopPage
+        [Mobile Page] as mobilePage
+        [App Details Page] as appPage
+        [Page Server Component] as pageServer
+    }
+    
+    package "Components" {
+        [AppTabs] as tabs
+        [TabContent] as tabContent
+        [FlowTypeSelect] as flowSelect
+        [ScreensView] as screensView
+        [FlowsView] as flowsView
+    }
+    
+    package "Hooks & Utils" {
+        [useApp] as useApp
+        [useScreens] as useScreens
+        [useFlows] as useFlows
+        [Pluralize] as pluralize
+        [Date Formatter] as dateFormatter
+    }
+}
+
+package "Backend Services" {
+    database "Contentful CMS" as contentful {
+        [Apps] as apps
+        [Screens] as screens
+        [Flow Types] as flowTypes
+        [Categories] as categories
+    }
+    
+    [GraphQL API] as graphql
+}
+
+' Определение отношений
+router --> desktopPage : Routes
+router --> mobilePage : Routes
+router --> appPage : Routes
+
+appPage --> pageServer : Server Component
+appPage --> useApp : Data Fetching
+appPage --> tabs : Renders
+appPage --> tabContent : Renders
+
+tabContent --> screensView : Conditional Render
+tabContent --> flowsView : Conditional Render
+tabContent --> flowSelect : Conditional Render
+
+useApp --> graphql : GraphQL Query
+useScreens --> graphql : GraphQL Query
+useFlows --> graphql : GraphQL Query
+
+graphql --> contentful : Fetches Data
+
+' Потоки данных
+note right of appPage
+  1. Получает platform и appId из URL
+  2. Загружает данные приложения
+  3. Фильтрует контент по платформе
+  4. Управляет состоянием табов
+end note
+
+note right of contentful
+  Хранит:
+  - Информацию о приложениях
+  - Скриншоты и их метаданные
+  - Типы флоу и их связи
+  - Категории приложений
+end note
+
+note right of graphql
+  Обрабатывает запросы:
+  - Получение приложения
+  - Получение скриншотов
+  - Фильтрация по платформе
+  - Сортировка и пагинация
+end note
+
+@enduml

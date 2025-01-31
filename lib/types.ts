@@ -1,16 +1,19 @@
 export interface Screen {
   id: string;
+  name: string;
   title?: string;
   image: {
     url: string;
   };
-  platform?: Array<{
+  platform: Array<{
     name: string;
   }>;
   flowType?: {
     name: string;
   };
   thumbnail?: boolean;
+  order?: number;
+  createdAt: string;
 }
 
 export interface App {

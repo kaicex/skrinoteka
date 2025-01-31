@@ -11,10 +11,10 @@ import {
 
 interface FlowTypeSelectProps {
   flowTypes: Array<{ name: string }>;
-  defaultValue: string;
+  selectedFlowType: string;
 }
 
-export function FlowTypeSelect({ flowTypes, defaultValue }: FlowTypeSelectProps) {
+export function FlowTypeSelect({ flowTypes, selectedFlowType }: FlowTypeSelectProps) {
   const router = useRouter()
   const searchParams = useSearchParams()
   const pathname = usePathname()
@@ -33,7 +33,7 @@ export function FlowTypeSelect({ flowTypes, defaultValue }: FlowTypeSelectProps)
     <div className="space-y-2">
       <div className="text-xs text-zinc-500">Фильтр по флоу</div>
       <Select
-        defaultValue={defaultValue}
+        value={selectedFlowType}
         onValueChange={handleValueChange}
       >
         <SelectTrigger className="w-full h-8 text-sm">
