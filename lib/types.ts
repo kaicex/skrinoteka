@@ -23,6 +23,14 @@ export interface App {
   category: string;
   description?: string;
   screens: Screen[];
+  videos?: Array<{
+    id: string;
+    title: string;
+    video: {
+      url: string;
+    };
+    isDesktop?: boolean;
+  }>;
   logo?: {
     url: string;
   };
