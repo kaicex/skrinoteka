@@ -38,7 +38,15 @@ export function AppSidebar({
     }
   });
 
+  // Получаем уникальные типы флоу из отфильтрованных экранов
+  const filteredFlowTypes = Array.from(new Set(
+    filteredScreens
+      .filter(screen => screen.flowType?.name)
+      .map(screen => screen.flowType?.name)
+  ));
+
   const platformScreensCount = filteredScreens.length;
+  const platformFlowCount = filteredFlowTypes.length;
   
   return (
     <aside className="w-full md:w-72 md:sticky md:top-8 flex-shrink-0">
@@ -148,7 +156,7 @@ export function AppSidebar({
             {hasFlows && (
               <div>
                 <div className="text-zinc-500">Всего флоу</div>
-                <div className="font-medium">{app.flowTypes?.length || 0}</div>
+                <div className="font-medium">{platformFlowCount}</div>
               </div>
             )}
           </div>
