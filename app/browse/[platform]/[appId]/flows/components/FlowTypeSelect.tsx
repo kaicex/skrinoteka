@@ -28,10 +28,9 @@ export function FlowTypeSelect({ flowTypes, screens }: FlowTypeSelectProps) {
   // Фильтруем типы флоу, которые есть в экранах текущей платформы
   const filteredFlowTypes = flowTypes.filter(flowType => {
     return screens.some(screen => {
-      const screenPlatforms = screen.platform.map(p => p.name.toLowerCase());
       const isCorrectPlatform = isDesktop 
-        ? screenPlatforms.includes('web')
-        : screenPlatforms.includes('ios') || screenPlatforms.includes('android');
+        ? screen.isDesktop === true
+        : screen.isDesktop === false || screen.isDesktop === undefined;
       
       return isCorrectPlatform && screen.flowType?.name === flowType.name;
     });

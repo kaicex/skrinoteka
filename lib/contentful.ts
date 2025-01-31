@@ -46,6 +46,7 @@ export async function getApps(): Promise<App[]> {
         image: {
           url: `https:${screen.fields.image.fields.file.url}`
         },
+        isDesktop: screen.fields.isDesktop || false,
         platform: screen.fields.platform?.map((p: any) => ({
           name: p.fields?.name || ''
         })) || [],
@@ -102,20 +103,14 @@ export async function getApps(): Promise<App[]> {
 export async function getDesktopApps(): Promise<App[]> {
   const apps = await getApps();
   return apps.filter(app => 
-    app.screens.some(screen => 
-      screen.platform?.some(p => p.name.toLowerCase() === 'web')
-    )
+    app.screens.some(screen => screen.isDesktop)
   );
 }
 
 export async function getMobileApps(): Promise<App[]> {
   const apps = await getApps();
   return apps.filter(app => 
-    app.screens.some(screen => 
-      screen.platform?.some(p => 
-        ['ios', 'android'].includes(p.name.toLowerCase())
-      )
-    )
+    app.screens.some(screen => !screen.isDesktop)
   );
 }
 
@@ -152,6 +147,7 @@ export async function getAppById(appId: string | undefined): Promise<App | null>
         image: {
           url: `https:${screen.fields.image.fields.file.url}`
         },
+        isDesktop: screen.fields.isDesktop || false,
         platform: screen.fields.platform?.map((p: any) => ({
           name: p.fields?.name || ''
         })) || [],

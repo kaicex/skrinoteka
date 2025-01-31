@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
@@ -20,14 +20,20 @@ export function DesktopAppCard({ app, href }: DesktopAppCardProps) {
   const [isSliding, setIsSliding] = useState(false);
   const [skipTransition, setSkipTransition] = useState(false);
 
-  // Фильтруем только десктопные скриншоты
-  const screenImages = app.screens
-    .filter(screen => 
-      screen.platform?.some(p => 
-        ['web', 'desktop'].includes(p.name.toLowerCase())
-      ) && screen.image?.url && screen.thumbnail === true
-    )
-    .slice(0, 3);
+  // Фильтруем скриншоты для desktop
+  const screenImages = useMemo(() => {
+    if (!app.screens || !Array.isArray(app.screens)) return [];
+    
+    return app.screens
+      .filter((screen): screen is (typeof app.screens[0] & { image: { url: string } }) => {
+        // Проверяем наличие url и thumbnail
+        if (!screen?.image?.url) return false;
+        
+        // Проверяем isDesktop и thumbnail
+        return screen.isDesktop === true && screen.thumbnail === true;
+      })
+      .slice(0, 3);
+  }, [app.screens]);
 
   const handleMouseLeave = () => {
     setSkipTransition(false);

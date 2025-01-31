@@ -15,7 +15,7 @@ interface Screen {
   image: {
     url: string
   }
-  platform: { name: string }[]
+  isDesktop?: boolean
   flowType?: {
     name: string
   }
@@ -108,7 +108,8 @@ const DesktopFlowsView = ({
     return filteredFlows.map(flowType => {
       const filteredScreens = screens.filter(screen => {
         const matches = screen.flowType?.name === flowType.name && 
-                       screen.image?.url;
+                       screen.image?.url &&
+                       (isDesktop ? screen.isDesktop === true : (screen.isDesktop === false || screen.isDesktop === undefined));
         return matches;
       });
 
@@ -117,7 +118,7 @@ const DesktopFlowsView = ({
         screens: filteredScreens,
       };
     }).filter(group => group.screens.length > 0);
-  }, [filteredFlows, screens]);
+  }, [filteredFlows, screens, isDesktop]);
 
   useEffect(() => {
     const flow = searchParams.get('flow')

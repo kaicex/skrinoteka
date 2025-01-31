@@ -20,13 +20,12 @@ export default function ScreensPage() {
     return <Loading />;
   }
 
-  // Фильтруем экраны в зависимости от платформы
+  // Фильтруем экраны в зависимости от isDesktop
   const filteredScreens = app.screens.filter(screen => {
-    const screenPlatforms = screen.platform.map(p => p.name.toLowerCase());
     if (isDesktop) {
-      return screenPlatforms.includes('web');
+      return screen.isDesktop === true;
     } else {
-      return screenPlatforms.includes('ios') || screenPlatforms.includes('android');
+      return screen.isDesktop === false || screen.isDesktop === undefined;
     }
   });
 

@@ -14,6 +14,7 @@ export interface Screen {
   thumbnail?: boolean;
   order?: number;
   createdAt: string;
+  isDesktop?: boolean;
 }
 
 export interface App {

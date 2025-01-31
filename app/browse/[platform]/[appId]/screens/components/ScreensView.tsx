@@ -13,7 +13,7 @@ interface Screen {
   image: {
     url: string;
   };
-  platform: { name: string }[];
+  isDesktop?: boolean;
 }
 
 interface ScreensViewProps {
@@ -105,14 +105,14 @@ const ScreensView = ({ screens, appName }: ScreensViewProps) => {
   return (
     <div className="grid gap-4">
       <h2 className="text-4xl font-semibold text-zinc-900">Экраны</h2>
-      <div className={`grid ${isDesktop ? 'grid-cols-2' : 'grid-cols-2 md:grid-cols-3 lg:grid-cols-4'} gap-4`}>
+      <div className={`grid grid-cols-2 ${isDesktop ? 'lg:grid-cols-3' : 'md:grid-cols-3 lg:grid-cols-4'} gap-4`}>
         {screens.map((screen, index) => {
           if (!screen.image?.url) return null;
           
           return (
             <div
               key={`screen-${screen.id}-${index}`}
-              className={`relative ${isDesktop ? 'aspect-[16/9]' : 'aspect-[390/844]'} cursor-pointer group`}
+              className={`relative ${isDesktop ? 'aspect-video' : 'aspect-[390/844]'} cursor-pointer group`}
               onClick={() => handleScreenClick(index)}
               role="listitem"
               aria-label={`${appName} screen ${index + 1}`}

@@ -14,7 +14,7 @@ interface Screen {
   image: {
     url: string
   }
-  platform: { name: string }[]
+  isDesktop?: boolean
   flowType?: {
     name: string
   }

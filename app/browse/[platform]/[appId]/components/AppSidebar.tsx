@@ -13,7 +13,6 @@ interface AppSidebarProps {
   currentTab: string
   hasFlows: boolean
   totalScreens: number
-  platformNames: string[]
   params: {
     platform: string
     appId: string
@@ -25,18 +24,17 @@ export function AppSidebar({
   currentTab,
   hasFlows,
   totalScreens,
-  platformNames,
   params
 }: AppSidebarProps) {
   const baseUrl = `/browse/${params.platform}/${params.appId}`
+  const isDesktop = params.platform === 'desktop'
   
-  // Фильтруем экраны в зависимости от платформы
+  // Фильтруем экраны в зависимости от isDesktop
   const filteredScreens = app.screens.filter(screen => {
-    const screenPlatforms = screen.platform.map(p => p.name.toLowerCase());
-    if (params.platform === 'desktop') {
-      return screenPlatforms.includes('web');
+    if (isDesktop) {
+      return screen.isDesktop === true;
     } else {
-      return screenPlatforms.includes('ios') || screenPlatforms.includes('android');
+      return screen.isDesktop === false || screen.isDesktop === undefined;
     }
   });
 
@@ -150,18 +148,9 @@ export function AppSidebar({
             {hasFlows && (
               <div>
                 <div className="text-zinc-500">Всего флоу</div>
-                <div className="font-medium">
-                  {app.flowTypes?.length || 0}
-                </div>
+                <div className="font-medium">{app.flowTypes?.length || 0}</div>
               </div>
             )}
-
-            <div>
-              <div className="text-zinc-500">Платформы</div>
-              <div className="font-medium">
-                {platformNames.join(', ')}
-              </div>
-            </div>
           </div>
         </div>
       </div>

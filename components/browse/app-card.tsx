@@ -21,6 +21,7 @@ interface AppCardProps {
         url: string;
       };
       thumbnail?: boolean;
+      isDesktop?: boolean;
     }>;
     logo?: {
       url: string;
@@ -41,7 +42,7 @@ export function AppCard({ app, href, selectedFlowType }: AppCardProps & { select
   const [isSliding, setIsSliding] = useState(false);
   const [skipTransition, setSkipTransition] = useState(false);
 
-  // Проверяем наличие screens и фильтруем по мобильным платформам
+  // Фильтруем скриншоты для mobile
   const screenImages = useMemo(() => {
     if (!app.screens || !Array.isArray(app.screens)) return [];
     
@@ -50,10 +51,8 @@ export function AppCard({ app, href, selectedFlowType }: AppCardProps & { select
         // Проверяем наличие url и thumbnail
         if (!screen?.image?.url) return false;
         
-        // Проверяем платформу и thumbnail
-        return (screen.platform?.some(p => 
-          ['ios', 'android'].includes(p.name.toLowerCase())
-        ) ?? false) && screen.thumbnail === true;
+        // Проверяем isDesktop и thumbnail
+        return screen.isDesktop !== true && screen.thumbnail === true;
       })
       .slice(0, 3);
   }, [app.screens]);

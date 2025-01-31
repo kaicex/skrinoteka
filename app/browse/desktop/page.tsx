@@ -28,6 +28,7 @@ export default function DesktopBrowsePage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [categories, setCategories] = useState<string[]>([]);
   const [flowTypes, setFlowTypes] = useState<string[]>([]);
+  const [page, setPage] = useState(1);
 
   const { data: apps = [], isLoading } = useDesktopApps();
 
@@ -39,112 +40,116 @@ export default function DesktopBrowsePage() {
     const uniqueCategories = ["Все", ...Array.from(categoriesSet)].filter(Boolean);
     setCategories(uniqueCategories);
 
-    // Get unique flow types from web platform screens only
-    const allFlowTypes = new Set<string>();
-    allFlowTypes.add("Все");
-    
+    // Get unique flow types from desktop screens only
+    const flowTypesSet = new Set<string>(["Все"]);
     apps.forEach(app => {
-      app.screens?.forEach(screen => {
-        if (screen.flowType?.name && screen.platform?.some(p => p.name.toLowerCase() === 'web')) {
-          allFlowTypes.add(screen.flowType.name);
+      app.screens.forEach(screen => {
+        if (screen.flowType?.name && screen.isDesktop) {
+          flowTypesSet.add(screen.flowType.name);
         }
       });
     });
-    
-    setFlowTypes(Array.from(allFlowTypes));
+    setFlowTypes(Array.from(flowTypesSet));
+  }, [apps]);
 
-    let filtered = [...apps];
-    
-    // Apply category filter
-    if (selectedCategory !== "Все") {
-      filtered = filtered.filter(app => app.category === selectedCategory);
-    }
-    
-    // Apply flow type filter
-    if (selectedFlowType !== "Все") {
-      filtered = filtered.filter(app => 
-        app.screens?.some(screen => 
-          screen.flowType?.name === selectedFlowType && 
-          screen.platform?.some(p => p.name.toLowerCase() === 'web')
-        )
-      );
-    }
+  useEffect(() => {
+    if (!apps.length) return;
 
-    // Apply search filter
-    if (searchQuery.trim()) {
-      const fuse = new Fuse(filtered, {
-        keys: ['name', 'description'],
-        threshold: 0.3,
-        ignoreLocation: true,
-      });
-      filtered = fuse.search(searchQuery).map(result => result.item);
-    }
+    const filtered = apps.filter(app => {
+      // Фильтрация по категории
+      if (selectedCategory !== "Все" && app.category !== selectedCategory) {
+        return false;
+      }
+
+      // Фильтрация по типу flow
+      if (selectedFlowType !== "Все") {
+        const hasMatchingFlow = app.screens.some(
+          screen => 
+            screen.isDesktop && 
+            screen.flowType?.name === selectedFlowType
+        );
+        if (!hasMatchingFlow) return false;
+      }
+
+      // Поиск по названию
+      if (searchQuery) {
+        const fuse = new Fuse([app], {
+          keys: ['name', 'description'],
+          threshold: 0.4,
+        });
+        return fuse.search(searchQuery).length > 0;
+      }
+
+      return true;
+    });
 
     setFilteredApps(filtered);
   }, [apps, selectedCategory, selectedFlowType, searchQuery]);
 
   const handleCategorySelect = (value: string) => {
     setSelectedCategory(value);
-    let filtered = [...apps];
-    
-    // Apply category filter
-    if (value !== "Все") {
-      filtered = filtered.filter(app => app.category === value);
-    }
-    
-    // Apply flow type filter
-    if (selectedFlowType !== "Все") {
-      filtered = filtered.filter(app => 
-        app.screens?.some(screen => 
-          screen.flowType?.name === selectedFlowType && 
-          screen.platform?.some(p => p.name.toLowerCase() === 'web')
-        )
-      );
-    }
+    const filtered = apps.filter(app => {
+      // Фильтрация по категории
+      if (value !== "Все" && app.category !== value) {
+        return false;
+      }
 
-    // Apply search filter
-    if (searchQuery.trim()) {
-      const fuse = new Fuse(filtered, {
-        keys: ['name', 'description'],
-        threshold: 0.3,
-        ignoreLocation: true,
-      });
-      filtered = fuse.search(searchQuery).map(result => result.item);
-    }
+      // Фильтрация по типу flow
+      if (selectedFlowType !== "Все") {
+        const hasMatchingFlow = app.screens.some(
+          screen => 
+            screen.isDesktop && 
+            screen.flowType?.name === selectedFlowType
+        );
+        if (!hasMatchingFlow) return false;
+      }
 
+      // Поиск по названию
+      if (searchQuery) {
+        const fuse = new Fuse([app], {
+          keys: ['name', 'description'],
+          threshold: 0.4,
+        });
+        return fuse.search(searchQuery).length > 0;
+      }
+
+      return true;
+    });
     setFilteredApps(filtered);
+    setPage(1);
   };
 
   const handleFlowTypeSelect = (value: string) => {
     setSelectedFlowType(value);
-    let filtered = [...apps];
-    
-    // Apply category filter
-    if (selectedCategory !== "Все") {
-      filtered = filtered.filter(app => app.category === selectedCategory);
-    }
-    
-    // Apply flow type filter
-    if (value !== "Все") {
-      filtered = filtered.filter(app => 
-        app.screens?.some(screen => 
-          screen.flowType?.name === value && 
-          screen.platform?.some(p => p.name.toLowerCase() === 'web')
-        )
-      );
-    }
+    const filtered = apps.filter(app => {
+      // Фильтрация по категории
+      if (selectedCategory !== "Все" && app.category !== selectedCategory) {
+        return false;
+      }
 
-    // Apply search filter
-    if (searchQuery.trim()) {
-      const fuse = new Fuse(filtered, {
-        keys: ['name', 'description'],
-        threshold: 0.3,
-        ignoreLocation: true,
-      });
-      filtered = fuse.search(searchQuery).map(result => result.item);
-    }
+      // Фильтрация по типу flow
+      if (value !== "Все") {
+        const hasMatchingFlow = app.screens.some(
+          screen => 
+            screen.isDesktop && 
+            screen.flowType?.name === value
+        );
+        if (!hasMatchingFlow) return false;
+      }
 
+      // Поиск по названию
+      if (searchQuery) {
+        const fuse = new Fuse([app], {
+          keys: ['name', 'description'],
+          threshold: 0.4,
+        });
+        return fuse.search(searchQuery).length > 0;
+      }
+
+      return true;
+    });
     setFilteredApps(filtered);
+    setPage(1);
     
     // Обновляем URL
     const params = new URLSearchParams(searchParams.toString());
@@ -158,34 +163,35 @@ export default function DesktopBrowsePage() {
 
   const handleSearch = (value: string) => {
     setSearchQuery(value);
-    let filtered = [...apps];
-    
-    // Apply category filter
-    if (selectedCategory !== "Все") {
-      filtered = filtered.filter(app => app.category === selectedCategory);
-    }
-    
-    // Apply flow type filter
-    if (selectedFlowType !== "Все") {
-      filtered = filtered.filter(app => 
-        app.screens?.some(screen => 
-          screen.flowType?.name === selectedFlowType && 
-          screen.platform?.some(p => p.name.toLowerCase() === 'web')
-        )
-      );
-    }
+    const filtered = apps.filter(app => {
+      // Фильтрация по категории
+      if (selectedCategory !== "Все" && app.category !== selectedCategory) {
+        return false;
+      }
 
-    // Apply search filter
-    if (value.trim()) {
-      const fuse = new Fuse(filtered, {
-        keys: ['name', 'description'],
-        threshold: 0.3,
-        ignoreLocation: true,
-      });
-      filtered = fuse.search(value).map(result => result.item);
-    }
+      // Фильтрация по типу flow
+      if (selectedFlowType !== "Все") {
+        const hasMatchingFlow = app.screens.some(
+          screen => 
+            screen.isDesktop && 
+            screen.flowType?.name === selectedFlowType
+        );
+        if (!hasMatchingFlow) return false;
+      }
 
+      // Поиск по названию
+      if (value) {
+        const fuse = new Fuse([app], {
+          keys: ['name', 'description'],
+          threshold: 0.4,
+        });
+        return fuse.search(value).length > 0;
+      }
+
+      return true;
+    });
     setFilteredApps(filtered);
+    setPage(1);
   };
 
   return (
