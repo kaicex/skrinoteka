@@ -23,7 +23,7 @@ const ScreensView = ({ screens, appName, screenTypes }: ScreensViewProps) => {
     
     const screenTypeParam = searchParams.get('screenType');
     if (screenTypeParam && screenTypeParam !== 'all') {
-      return screen.screenType?.name === screenTypeParam;
+      return screen.screenType?.some(st => st.name === screenTypeParam);
     }
     
     return true;

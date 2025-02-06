@@ -53,9 +53,9 @@ export async function getApps(): Promise<App[]> {
         flowType: screen.fields.flowType ? {
           name: screen.fields.flowType.fields?.name || ''
         } : undefined,
-        screenType: screen.fields.screenType ? {
-          name: screen.fields.screenType.fields?.name || ''
-        } : undefined,
+        screenType: screen.fields.screenType?.map((st: any) => ({
+          name: st.fields?.name || ''
+        })) || [],
         thumbnail: screen.fields.thumbnail || false,
         order: screen.fields.order || undefined,
         createdAt: screen.sys.createdAt
@@ -151,28 +151,35 @@ export async function getAppById(appId: string | undefined): Promise<App | null>
     // Фильтруем и сортируем экраны
     const screens = screensResponse.items
       .filter((screen: any) => screen.fields?.image?.fields?.file?.url)
-      .map((screen: any) => ({
-        id: screen.sys.id,
-        name: screen.fields.title || 'Untitled Screen',
-        title: screen.fields.title,
-        image: {
-          url: `https:${screen.fields.image.fields.file.url}`
-        },
-        isDesktop: screen.fields.isDesktop || false,
-        duplicatedScreen: screen.fields.duplicatedScreen || false,
-        platform: screen.fields.platform?.map((p: any) => ({
-          name: p.fields?.name || ''
-        })) || [],
-        flowType: screen.fields.flowType ? {
-          name: screen.fields.flowType.fields?.name || ''
-        } : undefined,
-        screenType: screen.fields.screenType ? {
-          name: screen.fields.screenType.fields?.name || ''
-        } : undefined,
-        thumbnail: screen.fields.thumbnail || false,
-        order: screen.fields.order || 0,
-        createdAt: screen.sys.createdAt
-      }))
+      .map((screen: any) => {
+        console.log('Raw screenType data:', screen.fields.screenType);
+        
+        const screenData = {
+          id: screen.sys.id,
+          name: screen.fields.title || 'Untitled Screen',
+          title: screen.fields.title,
+          image: {
+            url: `https:${screen.fields.image.fields.file.url}`
+          },
+          isDesktop: screen.fields.isDesktop || false,
+          duplicatedScreen: screen.fields.duplicatedScreen || false,
+          platform: screen.fields.platform?.map((p: any) => ({
+            name: p.fields?.name || ''
+          })) || [],
+          flowType: screen.fields.flowType ? {
+            name: screen.fields.flowType.fields?.name || ''
+          } : undefined,
+          screenType: screen.fields.screenType?.map((st: any) => ({
+            name: st.fields?.name || ''
+          })) || [],
+          thumbnail: screen.fields.thumbnail || false,
+          order: screen.fields.order || 0,
+          createdAt: screen.sys.createdAt
+        };
+        
+        console.log('Mapped screenType data:', screenData.screenType);
+        return screenData;
+      })
       .sort((a, b) => {
         if (a.order !== undefined && b.order !== undefined) {
           return a.order - b.order;
@@ -192,9 +199,11 @@ export async function getAppById(appId: string | undefined): Promise<App | null>
     // Получаем уникальные типы экранов
     const uniqueScreenTypes = Array.from(new Set(
       screens
-        .map(screen => screen.screenType?.name)
+        .flatMap(screen => screen.screenType?.map((st: { name: string }) => st.name) || [])
         .filter(Boolean)
     )).map(name => ({ name }));
+
+    console.log('Unique screen types:', uniqueScreenTypes);
 
     // Получаем видео
     const videos = videosResponse.items.map((videoEntry: any) => {

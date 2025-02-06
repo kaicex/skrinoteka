@@ -11,9 +11,9 @@ export interface Screen {
   flowType?: {
     name: string;
   };
-  screenType?: {
+  screenType?: Array<{
     name: string;
-  };
+  }>;
   duplicatedScreen?: boolean;
   thumbnail?: boolean;
   order?: number;

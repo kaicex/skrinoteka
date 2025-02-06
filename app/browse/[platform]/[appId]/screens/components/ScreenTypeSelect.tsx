@@ -25,6 +25,9 @@ export function ScreenTypeSelect({ screenTypes, screens }: ScreenTypeSelectProps
   const initialScreenType = searchParams.get('screenType') || 'all'
   const [selectedType, setSelectedType] = useState(initialScreenType)
 
+  console.log('Initial screenTypes:', screenTypes);
+  console.log('Initial screens with their types:', screens.map(s => ({ id: s.id, screenType: s.screenType })));
+
   // Фильтруем типы экранов, которые есть в экранах текущей платформы
   const filteredScreenTypes = screenTypes.filter(screenType => {
     return screens.some(screen => {
@@ -32,9 +35,14 @@ export function ScreenTypeSelect({ screenTypes, screens }: ScreenTypeSelectProps
         ? screen.isDesktop === true
         : screen.isDesktop === false || screen.isDesktop === undefined;
       
-      return isCorrectPlatform && screen.screenType?.name === screenType.name;
+      const hasScreenType = screen.screenType?.some(st => st.name === screenType.name);
+      console.log(`Screen ${screen.id} platform match: ${isCorrectPlatform}, has type ${screenType.name}: ${hasScreenType}`);
+      
+      return isCorrectPlatform && hasScreenType;
     });
   });
+
+  console.log('Filtered screenTypes:', filteredScreenTypes);
 
   const handleValueChange = (value: string) => {
     const params = new URLSearchParams(searchParams.toString())
