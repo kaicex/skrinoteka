@@ -110,12 +110,6 @@ const ScreensView = ({ screens, appName, screenTypes }: ScreensViewProps) => {
 
   return (
     <div className="space-y-4">
-      <div className="flex justify-between items-start">
-        <div className="space-y-2">
-          <h2 className="text-2xl font-bold">{appName}</h2>
-          <div className="text-sm text-zinc-500">{filteredScreens.length} экранов</div>
-        </div>
-      </div>
       <div className={`grid grid-cols-2 ${isDesktop ? 'lg:grid-cols-3' : 'md:grid-cols-3 lg:grid-cols-4'} gap-4`}>
         {filteredScreens.map((screen, index) => {
           if (!screen.image?.url) return null;

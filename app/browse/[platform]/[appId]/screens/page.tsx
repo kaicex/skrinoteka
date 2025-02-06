@@ -30,12 +30,15 @@ export default function ScreensPage() {
   });
 
   return (
-    <Suspense fallback={<Loading message="Загрузка экранов..." />}>
-      <ScreensView 
-        screens={filteredScreens} 
-        appName={app.name} 
-        screenTypes={app.screenTypes || []}
-      />
-    </Suspense>
+    <div className="space-y-8">
+      <h2 className="text-4xl font-semibold text-zinc-900">Экраны</h2>
+      <Suspense fallback={<Loading message="Загрузка экранов..." />}>
+        <ScreensView 
+          screens={filteredScreens} 
+          appName={app.name} 
+          screenTypes={app.screenTypes || []}
+        />
+      </Suspense>
+    </div>
   )
 }
