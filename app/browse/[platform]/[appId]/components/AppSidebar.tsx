@@ -129,17 +129,19 @@ export function AppSidebar({
                 >
                   Экраны
                 </Link>
-                <Link
-                  href={`${baseUrl}/videos`}
-                  className={cn(
-                    "flex-1 px-3 py-1.5 text-sm text-center rounded-md transition-colors",
-                    currentTab === 'videos'
-                      ? "bg-white text-gray-900 shadow-sm"
-                      : "text-gray-600 hover:text-gray-900 hover:bg-gray-100"
-                  )}
-                >
-                  Видео
-                </Link>
+                {app.videos && app.videos.length > 0 && (
+                  <Link
+                    href={`${baseUrl}/videos`}
+                    className={cn(
+                      "flex-1 px-3 py-1.5 text-sm text-center rounded-md transition-colors",
+                      currentTab === 'videos'
+                        ? "bg-white text-gray-900 shadow-sm"
+                        : "text-gray-600 hover:text-gray-900 hover:bg-gray-100"
+                    )}
+                  >
+                    Видео
+                  </Link>
+                )}
               </nav>
 
               {currentTab === 'flows' && (
