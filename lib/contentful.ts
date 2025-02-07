@@ -67,14 +67,11 @@ export async function getApps(): Promise<App[]> {
     // Сортируем экраны для каждого приложения
     screensByApp.forEach((screens, appId) => {
       const sortedScreens = screens.sort((a, b) => {
-        // Если у обоих есть order, сортируем по нему
-        if (a.order !== undefined && b.order !== undefined) {
-          return a.order - b.order;
+        const aOrder = a.order !== undefined ? a.order : Number.MAX_SAFE_INTEGER;
+        const bOrder = b.order !== undefined ? b.order : Number.MAX_SAFE_INTEGER;
+        if (aOrder !== bOrder) {
+          return aOrder - bOrder;
         }
-        // Если order есть только у одного, он идет в конец
-        if (a.order !== undefined) return -1;
-        if (b.order !== undefined) return 1;
-        // Если order нет у обоих, сортируем по дате создания (старые в начале)
         return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
       });
       screensByApp.set(appId, sortedScreens);
@@ -119,7 +116,6 @@ export async function getMobileApps(): Promise<App[]> {
 
 export async function getAppById(appId: string | undefined): Promise<App | null> {
   if (!appId || typeof appId !== 'string') {
-    console.error('Error fetching app: invalid appId:', appId);
     return null;
   }
 
@@ -142,7 +138,6 @@ export async function getAppById(appId: string | undefined): Promise<App | null>
 
 
     if (!appResponse?.fields) {
-      console.error('App response is invalid:', appResponse);
       return null;
     }
 
@@ -151,41 +146,34 @@ export async function getAppById(appId: string | undefined): Promise<App | null>
     // Фильтруем и сортируем экраны
     const screens = screensResponse.items
       .filter((screen: any) => screen.fields?.image?.fields?.file?.url)
-      .map((screen: any) => {
-        console.log('Raw screenType data:', screen.fields.screenType);
-        
-        const screenData = {
-          id: screen.sys.id,
-          name: screen.fields.title || 'Untitled Screen',
-          title: screen.fields.title,
-          image: {
-            url: `https:${screen.fields.image.fields.file.url}`
-          },
-          isDesktop: screen.fields.isDesktop || false,
-          duplicatedScreen: screen.fields.duplicatedScreen || false,
-          platform: screen.fields.platform?.map((p: any) => ({
-            name: p.fields?.name || ''
-          })) || [],
-          flowType: screen.fields.flowType ? {
-            name: screen.fields.flowType.fields?.name || ''
-          } : undefined,
-          screenType: screen.fields.screenType?.map((st: any) => ({
-            name: st.fields?.name || ''
-          })) || [],
-          thumbnail: screen.fields.thumbnail || false,
-          order: screen.fields.order || 0,
-          createdAt: screen.sys.createdAt
-        };
-        
-        console.log('Mapped screenType data:', screenData.screenType);
-        return screenData;
-      })
+      .map((screen: any) => ({
+        id: screen.sys.id,
+        name: screen.fields.title || 'Untitled Screen',
+        title: screen.fields.title,
+        image: {
+          url: `https:${screen.fields.image.fields.file.url}`
+        },
+        isDesktop: screen.fields.isDesktop || false,
+        duplicatedScreen: screen.fields.duplicatedScreen || false,
+        platform: screen.fields.platform?.map((p: any) => ({
+          name: p.fields?.name || ''
+        })) || [],
+        flowType: screen.fields.flowType ? {
+          name: screen.fields.flowType.fields?.name || ''
+        } : undefined,
+        screenType: screen.fields.screenType?.map((st: any) => ({
+          name: st.fields?.name || ''
+        })) || [],
+        thumbnail: screen.fields.thumbnail || false,
+        order: (screen.fields.order !== undefined ? screen.fields.order : undefined),
+        createdAt: screen.sys.createdAt
+      }))
       .sort((a, b) => {
-        if (a.order !== undefined && b.order !== undefined) {
-          return a.order - b.order;
+        const aOrder = a.order !== undefined ? a.order : Number.MAX_SAFE_INTEGER;
+        const bOrder = b.order !== undefined ? b.order : Number.MAX_SAFE_INTEGER;
+        if (aOrder !== bOrder) {
+          return aOrder - bOrder;
         }
-        if (a.order !== undefined) return -1;
-        if (b.order !== undefined) return 1;
         return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
       });
 
@@ -203,7 +191,7 @@ export async function getAppById(appId: string | undefined): Promise<App | null>
         .filter(Boolean)
     )).map(name => ({ name }));
 
-    console.log('Unique screen types:', uniqueScreenTypes);
+
 
     // Получаем видео
     const videos = videosResponse.items.map((videoEntry: any) => {
@@ -244,7 +232,6 @@ export async function getAppById(appId: string | undefined): Promise<App | null>
       date_updated: fields.dateUpdated || '',
     };
   } catch (error) {
-    console.error('Error fetching app:', error);
     return null;
   }
 }
