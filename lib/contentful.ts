@@ -25,6 +25,7 @@ export async function getApps(): Promise<App[]> {
       client.getEntries({
         content_type: 'screen',
         include: 2,
+        limit: 1000
       })
     ]);
 
@@ -128,6 +129,7 @@ export async function getAppById(appId: string | undefined): Promise<App | null>
         content_type: 'screen',
         'fields.app.sys.id': appId,
         include: 2,
+        limit: 1000
       }),
       client.getEntries({
         content_type: 'video',
