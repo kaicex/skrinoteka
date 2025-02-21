@@ -41,6 +41,7 @@ export interface App {
   };
   flowTypes?: Array<{
     name: string;
+    order?: number;
   }>;
   screenTypes?: Array<{
     name: string;

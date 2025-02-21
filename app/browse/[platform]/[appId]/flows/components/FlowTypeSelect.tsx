@@ -12,7 +12,7 @@ import { useState } from 'react'
 import { Screen } from '@/lib/types'
 
 interface FlowTypeSelectProps {
-  flowTypes: Array<{ name: string }>;
+  flowTypes: Array<{ name: string; order?: number }>;
   defaultValue?: string;
   screens: Screen[];
 }
