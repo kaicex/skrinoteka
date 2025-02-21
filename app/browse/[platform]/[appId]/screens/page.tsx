@@ -5,6 +5,7 @@ import dynamic from 'next/dynamic'
 import { useParams } from 'next/navigation'
 import { useApp } from '@/hooks/use-apps'
 import { Loading } from '@/components/ui/loading'
+import { ScrollToTop } from '@/components/ui/scroll-to-top'
 
 const ScreensView = dynamic(() => import('./components/ScreensView'), {
   loading: () => <Loading message="Загрузка экранов..." />,
@@ -32,13 +33,29 @@ export default function ScreensPage() {
   return (
     <div className="space-y-8">
       <h2 className="text-4xl font-semibold text-zinc-900">Экраны</h2>
-      <Suspense fallback={<Loading message="Загрузка экранов..." />}>
-        <ScreensView 
-          screens={filteredScreens} 
-          appName={app.name} 
-          screenTypes={app.screenTypes || []}
-        />
-      </Suspense>
+      {isDesktop ? (
+        <>
+          <Suspense fallback={<Loading message="Загрузка экранов..." />}>
+            <ScreensView 
+              screens={filteredScreens} 
+              appName={app.name} 
+              screenTypes={app.screenTypes || []}
+            />
+          </Suspense>
+          <ScrollToTop />
+        </>
+      ) : (
+        <>
+          <Suspense fallback={<Loading message="Загрузка экранов..." />}>
+            <ScreensView 
+              screens={filteredScreens} 
+              appName={app.name} 
+              screenTypes={app.screenTypes || []}
+            />
+          </Suspense>
+          <ScrollToTop />
+        </>
+      )}
     </div>
   )
 }
