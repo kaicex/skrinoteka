@@ -22,7 +22,7 @@ export function ScreenTypeSelect({ screenTypes, screens }: ScreenTypeSelectProps
   const pathname = usePathname()
   const params = useParams()
   const isDesktop = params.platform === 'desktop'
-  const initialScreenType = searchParams.get('screenType') || 'all'
+  const initialScreenType = searchParams.get('screenType') || 'Все типы'
   const [selectedType, setSelectedType] = useState(initialScreenType)
 
   // Фильтруем типы экранов, которые есть в экранах текущей платформы
@@ -36,9 +36,19 @@ export function ScreenTypeSelect({ screenTypes, screens }: ScreenTypeSelectProps
     });
   });
 
+  const getScreenTypeCount = (typeName: string) => {
+    return screens.filter(screen => {
+      const isCorrectPlatform = isDesktop 
+        ? screen.isDesktop === true
+        : screen.isDesktop === false || screen.isDesktop === undefined;
+      
+      return isCorrectPlatform && screen.screenType?.some(st => st.name === typeName);
+    }).length;
+  };
+
   const handleValueChange = (value: string) => {
     const params = new URLSearchParams(searchParams.toString())
-    if (value === "all") {
+    if (value === "Все типы") {
       params.delete('screenType')
     } else {
       params.set('screenType', value)
@@ -60,12 +70,15 @@ export function ScreenTypeSelect({ screenTypes, screens }: ScreenTypeSelectProps
           <SelectValue placeholder="Выберите тип экрана" />
         </SelectTrigger>
         <SelectContent>
-          <SelectItem value="all">
+          <SelectItem value="Все типы">
             Все типы
           </SelectItem>
           {filteredScreenTypes.map((screenType) => (
             <SelectItem key={screenType.name} value={screenType.name}>
-              {screenType.name}
+              <span className="flex items-center gap-2">
+                <span>{screenType.name}</span>
+                <span className="text-zinc-400">{getScreenTypeCount(screenType.name)}</span>
+              </span>
             </SelectItem>
           ))}
         </SelectContent>
