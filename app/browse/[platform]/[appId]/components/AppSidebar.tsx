@@ -8,6 +8,7 @@ import { cn } from '@/lib/utils'
 import { FlowTypeSelect } from '../flows/components/FlowTypeSelect'
 import { ScreenTypeSelect } from '../screens/components/ScreenTypeSelect'
 import { pluralizeScreens } from '@/lib/utils/pluralize'
+import { useSearchParams } from 'next/navigation'
 
 interface AppSidebarProps {
   app: App
@@ -29,6 +30,7 @@ export function AppSidebar({
 }: AppSidebarProps) {
   const baseUrl = `/browse/${params.platform}/${params.appId}`
   const isDesktop = params.platform === 'desktop'
+  const searchParams = useSearchParams()
   
   // Фильтруем экраны в зависимости от isDesktop
   const filteredScreens = app.screens.filter(screen => {
@@ -148,7 +150,8 @@ export function AppSidebar({
                 <div className="pt-3">
                   <FlowTypeSelect 
                     flowTypes={app.flowTypes || []} 
-                    screens={app.screens} 
+                    screens={filteredScreens}
+                    defaultValue="Все флоу"
                   />
                 </div>
               )}

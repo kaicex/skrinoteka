@@ -13,16 +13,17 @@ import { Screen } from '@/lib/types'
 
 interface FlowTypeSelectProps {
   flowTypes: Array<{ name: string }>;
+  defaultValue?: string;
   screens: Screen[];
 }
 
-export function FlowTypeSelect({ flowTypes, screens }: FlowTypeSelectProps) {
+export function FlowTypeSelect({ flowTypes, defaultValue, screens }: FlowTypeSelectProps) {
   const router = useRouter()
   const searchParams = useSearchParams()
   const pathname = usePathname()
   const params = useParams()
   const isDesktop = params.platform === 'desktop'
-  const initialFlowType = searchParams.get('flowType') || 'all'
+  const initialFlowType = searchParams.get('flowType') || defaultValue || 'Все флоу'
   const [selectedType, setSelectedType] = useState(initialFlowType)
 
   // Фильтруем типы флоу, которые есть в экранах текущей платформы
@@ -36,9 +37,19 @@ export function FlowTypeSelect({ flowTypes, screens }: FlowTypeSelectProps) {
     });
   });
 
+  const getFlowScreenCount = (flowName: string) => {
+    return screens.filter(screen => {
+      const isCorrectPlatform = isDesktop 
+        ? screen.isDesktop === true
+        : screen.isDesktop === false || screen.isDesktop === undefined;
+      
+      return isCorrectPlatform && screen.flowType?.name === flowName;
+    }).length;
+  };
+
   const handleValueChange = (value: string) => {
     const params = new URLSearchParams(searchParams.toString())
-    if (value === "all") {
+    if (value === "Все флоу") {
       params.delete('flowType')
     } else {
       params.set('flowType', value)
@@ -60,12 +71,15 @@ export function FlowTypeSelect({ flowTypes, screens }: FlowTypeSelectProps) {
           <SelectValue placeholder="Выберите тип флоу" />
         </SelectTrigger>
         <SelectContent>
-          <SelectItem value="all">
+          <SelectItem value="Все флоу">
             Все флоу
           </SelectItem>
           {filteredFlowTypes.map((flowType) => (
             <SelectItem key={flowType.name} value={flowType.name}>
-              {flowType.name}
+              <span className="flex items-center gap-2">
+                <span>{flowType.name}</span>
+                <span className="text-zinc-400">{getFlowScreenCount(flowType.name)}</span>
+              </span>
             </SelectItem>
           ))}
         </SelectContent>
