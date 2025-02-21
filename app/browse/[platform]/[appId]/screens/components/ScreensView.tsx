@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { useSearchParams, useRouter, usePathname } from 'next/navigation';
 import { ScreenModal } from './ScreenModal';
 import { LazyImage } from '@/components/LazyImage';
@@ -30,17 +30,14 @@ const ScreensView = ({ screens, appName, screenTypes }: ScreensViewProps) => {
   });
   
   const [selectedScreenIndex, setSelectedScreenIndex] = useState<number | null>(null);
-  const [loadingStates, setLoadingStates] = useState<boolean[]>(new Array(filteredScreens.length).fill(true));
   const router = useRouter();
   const pathname = usePathname();
   const params = useParams();
   const platform = params.platform as string;
   const isDesktop = platform === 'desktop';
 
-  // Handle URL parameters
   useEffect(() => {
-    const params = new URLSearchParams(searchParams.toString());
-    const screenParam = params.get('screen');
+    const screenParam = searchParams.get('screen');
     
     if (screenParam) {
       try {
@@ -48,12 +45,12 @@ const ScreensView = ({ screens, appName, screenTypes }: ScreensViewProps) => {
         if (index >= 0 && index < filteredScreens.length) {
           setSelectedScreenIndex(index);
         } else {
-          // Invalid index, remove screen parameter
+          const params = new URLSearchParams(searchParams.toString());
           params.delete('screen');
           router.replace(`${pathname}?${params.toString()}`);
         }
-      } catch (error) {
-        // Invalid number format, remove screen parameter
+      } catch {
+        const params = new URLSearchParams(searchParams.toString());
         params.delete('screen');
         router.replace(`${pathname}?${params.toString()}`);
       }
@@ -62,15 +59,16 @@ const ScreensView = ({ screens, appName, screenTypes }: ScreensViewProps) => {
     }
   }, [searchParams, filteredScreens.length, pathname, router]);
 
-  const updateURL = (index: number | null) => {
+  const updateURL = useCallback((index: number | null) => {
     const params = new URLSearchParams(searchParams.toString());
     if (index !== null && index >= 0 && index < filteredScreens.length) {
       params.set('screen', (index + 1).toString());
     } else {
       params.delete('screen');
     }
-    router.replace(`${pathname}?${params.toString()}`);
-  };
+    
+    router.replace(`${pathname}?${params.toString()}`, { scroll: false });
+  }, [searchParams, pathname, router, filteredScreens.length]);
 
   const handleNext = () => {
     if (selectedScreenIndex !== null && selectedScreenIndex < filteredScreens.length - 1) {
@@ -99,6 +97,8 @@ const ScreensView = ({ screens, appName, screenTypes }: ScreensViewProps) => {
     setSelectedScreenIndex(null);
     updateURL(null);
   };
+
+  const [loadingStates, setLoadingStates] = useState<boolean[]>(new Array(filteredScreens.length).fill(true));
 
   const handleImageLoad = (index: number) => {
     setLoadingStates(prev => {

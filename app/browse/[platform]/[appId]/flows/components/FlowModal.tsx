@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useRef, useEffect, useMemo } from 'react'
+import { useState, useRef, useEffect, useMemo, useCallback } from 'react'
 import {
   Dialog,
   DialogContent,
@@ -131,9 +131,36 @@ export function FlowModal({
   const [showLeftArrow, setShowLeftArrow] = useState(false)
   const [showRightArrow, setShowRightArrow] = useState(false)
   const modalId = useRef(`flow-${flowType}-${Date.now()}`)
+  const savedScrollPosition = useRef<number>(0)
 
   // Используем initialScreens напрямую, так как они уже отсортированы
   const screens = initialScreens;
+
+  useEffect(() => {
+    if (isOpen) {
+      // Сохраняем позицию скролла при открытии
+      savedScrollPosition.current = window.scrollY
+    } else if (!isOpen && savedScrollPosition.current !== 0) {
+      // Восстанавливаем позицию скролла при закрытии
+      requestAnimationFrame(() => {
+        window.scrollTo(0, savedScrollPosition.current)
+      })
+    }
+  }, [isOpen])
+
+  useEffect(() => {
+    return () => {}
+  }, [])
+
+  useEffect(() => {
+  }, [isOpen])
+
+  useEffect(() => {
+  }, [currentIndex])
+
+  const handleClose = useCallback(() => {
+    onClose()
+  }, [onClose])
 
   // Check and update arrows visibility
   const updateArrowsVisibility = () => {
@@ -252,7 +279,7 @@ export function FlowModal({
 
   return (
     
-    <Dialog open={isOpen} onOpenChange={onClose} >
+    <Dialog open={isOpen} onOpenChange={handleClose} >
       <DialogContent 
         className="max-w-[calc(100vw-1px)] max-h-[100svh] bg-white rounded-xl border overflow-hidden p-0"
       >
@@ -268,7 +295,7 @@ export function FlowModal({
             className="h-12 shrink-0 p-4 flex justify-end items-center bg-white"
           >
             <button
-              onClick={onClose}
+              onClick={handleClose}
               className="p-2 rounded-full bg-zinc-100 hover:bg-zinc-200 transition-colors cursor-pointer"
               aria-label="Close modal"
             >

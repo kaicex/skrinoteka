@@ -78,7 +78,8 @@ const FlowsView = ({
       params.delete('flow')
       params.delete('screen')
     }
-    router.replace(`${pathname}?${params.toString()}`)
+    
+    router.replace(`${pathname}?${params.toString()}`, { scroll: false })
   }, [searchParams, pathname, router])
 
   const handleFlowClick = useCallback((type: string, flowScreens: Screen[], index: number) => {

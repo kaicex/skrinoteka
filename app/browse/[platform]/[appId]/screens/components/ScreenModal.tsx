@@ -7,7 +7,7 @@ import {
   DialogDescription
 } from "@/components/ui/dialog"
 import { ChevronLeft, ChevronRight, X, ArrowDown, ClipboardCopy, Check, Download } from "lucide-react"
-import { useEffect, useState } from "react"
+import { useEffect, useState, useRef, useCallback } from "react"
 import { pluralizeScreens } from '@/lib/utils/pluralize'
 
 interface Screen {
@@ -30,7 +30,7 @@ interface ScreenModalProps {
 export function ScreenModal({
   isOpen,
   onClose,
-  screens,
+  screens: initialScreens,
   currentIndex,
   appName,
   screenType = 'Screen',
@@ -38,6 +38,41 @@ export function ScreenModal({
   onPrev,
   platform = 'mobile'
 }: ScreenModalProps) {
+  const scrollContainerRef = useRef<HTMLDivElement>(null)
+  const [showLeftArrow, setShowLeftArrow] = useState(false)
+  const [showRightArrow, setShowRightArrow] = useState(false)
+  const modalId = useRef(`screen-${screenType}-${Date.now()}`)
+  const savedScrollPosition = useRef<number>(0)
+
+  // Используем initialScreens напрямую, так как они уже отсортированы
+  const screens = initialScreens;
+
+  useEffect(() => {
+    if (isOpen) {
+      // Сохраняем позицию скролла при открытии
+      savedScrollPosition.current = window.scrollY
+    } else if (!isOpen && savedScrollPosition.current !== 0) {
+      // Восстанавливаем позицию скролла при закрытии
+      requestAnimationFrame(() => {
+        window.scrollTo(0, savedScrollPosition.current)
+      })
+    }
+  }, [isOpen])
+
+  useEffect(() => {
+    return () => {}
+  }, [])
+
+  useEffect(() => {
+  }, [isOpen])
+
+  useEffect(() => {
+  }, [currentIndex])
+
+  const handleClose = useCallback(() => {
+    onClose()
+  }, [onClose])
+
   useEffect(() => {
     if (!isOpen) return;
 
@@ -72,7 +107,7 @@ export function ScreenModal({
   const totalScreens = screens.length;
 
   return (
-    <Dialog open={isOpen} onOpenChange={() => onClose()} >
+    <Dialog open={isOpen} onOpenChange={() => handleClose()} >
       <DialogContent className="max-w-full p-0 rounded-xl border border-zinc-200 overflow-hidden bg-white">
         <DialogTitle className="sr-only">
           {`${appName} ${screenType} Просмотр`}
@@ -84,7 +119,7 @@ export function ScreenModal({
           {/* Top panel */}
           <div className="h-12 shrink-0 p-4 flex justify-end items-center">
             <button
-              onClick={onClose}
+              onClick={handleClose}
               className="p-2 rounded-full bg-zinc-100 hover:bg-zinc-200 transition-colors cursor-pointer"
               aria-label="Закрыть окно"
             >
